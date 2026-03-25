@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CYBERDECK // ENV MONITOR</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
+/* ── reset & base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green:   #00ff9c;
+  --blue:    #00bfff;
+  --dim:     rgba(0,255,150,0.12);
+  --border:  rgba(0,255,150,0.35);
+  --bg:      #060d06;
+  --bg2:     rgba(0,20,10,0.75);
+  --glow:    0 0 18px rgba(0,255,150,0.18);
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-head: 'Orbitron', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--green);
+  font-family: var(--font-mono);
+  min-height: 100vh;
+  padding: 24px 20px 40px;
+  /* scanline overlay */
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+}
+
+/* ── scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── layout ── */
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ── header ── */
+header {
+  text-align: center;
+  margin-bottom: 28px;
+  animation: fadeDown 0.6s ease both;
+}
+header h1 {
+  font-family: var(--font-head);
+  font-size: clamp(1.4em, 4vw, 2.4em);
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-shadow: 0 0 24px rgba(0,255,150,0.7), 0 0 60px rgba(0,255,150,0.2);
+}
+header .sub {
+  font-size: 0.7em;
+  letter-spacing: 3px;
+  opacity: 0.45;
+  margin-top: 4px;
+}
+
+/* ── panels ── */
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+  background: var(--bg2);
+  box-shadow: var(--glow);
+  animation: fadeUp 0.5s ease both;
+}
+.panel-title {
+  font-size: 0.65em;
+  letter-spacing: 2px;
+  opacity: 0.45;
+  margin-bottom: 16px;
+}
+
+/* ── stat cards ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat {
+  background: rgba(0,255,150,0.04);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 12px;
+  text-align: center;
+  transition: box-shadow 0.3s;
+}
+.stat:hover { box-shadow: 0 0 14px rgba(0,255,150,0.2); }
+.stat .s-val {
+  font-family: var(--font-head);
+  font-size: 2em;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(0,255,150,0.6);
+}
+.stat .s-val.blue {
+  color: var(--blue);
+  text-shadow: 0 0 10px rgba(0,191,255,0.6);
+}
+.stat .s-unit { font-size: 0.45em; opacity: 0.6; margin-left: 2px; }
+.stat .s-lbl  { font-size: 0.6em; letter-spacing: 2px; opacity: 0.5; margin-top: 6px; }
+.stat .s-delta { font-size: 0.6em; margin-top: 4px; }
+.up   { color: #00ff9c; }
+.down { color: #ff6b6b; }
+.neu  { color: rgba(0,255,150,0.45); }
+
+/* ── status bar ── */
+.status-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.68em;
+  letter-spacing: 1px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0,255,150,0.15);
+  margin-top: 4px;
+}
+.s-item { display: flex; align-items: center; gap: 7px; }
+.dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  animation: blink 1.6s infinite;
+  transition: background 0.4s;
+}
+.dot.fault { background: #ff4444; animation: none; }
+.dot.warn  { background: #ffaa00; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+/* ── range pills ── */
+.range-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.pill {
+  font-family: var(--font-mono);
+  font-size: 0.65em;
+  letter-spacing: 1px;
+  padding: 4px 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--green);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.pill:hover  { background: rgba(0,255,150,0.08); }
+.pill.active {
+  background: rgba(0,255,150,0.15);
+  box-shadow: 0 0 10px rgba(0,255,150,0.2);
+  border-color: var(--green);
+}
+
+/* ── chart ── */
+.chart-wrap { position: relative; }
+canvas { max-height: 300px; }
+
+/* ── daily bars ── */
+.bars-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media(max-width:600px){ .bars-grid { grid-template-columns: 1fr; } }
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+.bar-day  { font-size: 0.65em; width: 32px; opacity: 0.6; text-align: right; }
+.bar-track {
+  flex: 1;
+  height: 5px;
+  background: rgba(0,255,150,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+.bar-fill.green { background: var(--green); }
+.bar-fill.blue  { background: var(--blue); }
+.bar-num { font-size: 0.65em; width: 36px; opacity: 0.7; text-align: right; }
+
+/* ── download button ── */
+.dl-btn {
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  letter-spacing: 2px;
+  padding: 8px 20px;
+  border: 1px solid var(--green);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--green);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.dl-btn:hover {
+  background: rgba(0,255,150,0.1);
+  box-shadow: 0 0 12px rgba(0,255,150,0.2);
+}
+.dl-btn svg { width: 13px; height: 13px; }
+
+/* ── last updated / footer ── */
+footer {
+  text-align: center;
+  font-size: 0.6em;
+  letter-spacing: 2px;
+  opacity: 0.35;
+  margin-top: 20px;
+}
+
+/* ── loading overlay ── */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: opacity 0.5s;
+}
+#loader h2 {
+  font-family: var(--font-head);
+  font-size: 1em;
+  letter-spacing: 4px;
+  margin-bottom: 20px;
+  text-shadow: 0 0 20px rgba(0,255,150,0.7);
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 2px solid rgba(0,255,150,0.15);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin    { to { transform: rotate(360deg); } }
+@keyframes fadeUp  { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+@keyframes fadeDown{ from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:none; } }
+
+/* stagger panel animations */
+.panel:nth-child(1){ animation-delay: 0.05s; }
+.panel:nth-child(2){ animation-delay: 0.15s; }
+.panel:nth-child(3){ animation-delay: 0.25s; }
+.panel:nth-child(4){ animation-delay: 0.35s; }
+</style>
+</head>
+<body>
+
+<!-- Loading screen -->
+<div id="loader">
+  <h2>INITIALISING...</h2>
+  <div class="spinner"></div>
+</div>
+
+<div class="wrap">
+
+  <!-- Header -->
+  <header>
+    <h1>[ENV] CYBERDECK MONITOR</h1>
+    <div class="sub">ESP32 // DHT22 // GOOGLE SHEETS // v2.0</div>
+  </header>
+
+  <!-- Live stats panel -->
+  <div class="panel" style="animation-delay:0.05s">
+    <div class="panel-title">// CURRENT READINGS</div>
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="s-val" id="cur-temp">--<span class="s-unit">°C</span></div>
+        <div class="s-lbl">TEMPERATURE</div>
+        <div class="s-delta neu" id="delta-temp">--</div>
+      </div>
+      <div class="stat">
+        <div class="s-val blue" id="cur-hum">--<span class="s-unit">%</span></div>
+        <div class="s-lbl">HUMIDITY</div>
+        <div class="s-delta neu" id="delta-hum">--</div>
+      </div>
+      <div class="stat">
+        <div class="s-val" id="stat-high">--<span class="s-unit">°C</span></div>
+        <div class="s-lbl">7D HIGH</div>
+        <div class="s-delta neu" id="high-time">--</div>
+      </div>
+      <div class="stat">
+        <div class="s-val" id="stat-low">--<span class="s-unit">°C</span></div>
+        <div class="s-lbl">7D LOW</div>
+        <div class="s-delta neu" id="low-time">--</div>
+      </div>
+      <div class="stat">
+        <div class="s-val" id="stat-avgtemp">--<span class="s-unit">°C</span></div>
+        <div class="s-lbl">7D AVG TEMP</div>
+      </div>
+      <div class="stat">
+        <div class="s-val blue" id="stat-avghum">--<span class="s-unit">%</span></div>
+        <div class="s-lbl">7D AVG HUM</div>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div class="s-item"><div class="dot" id="dot-data"></div><span id="lbl-data">LOADING DATA...</span></div>
+      <div class="s-item"><div class="dot" id="dot-rows"></div><span id="lbl-rows">-- ROWS</span></div>
+      <div class="s-item"><div class="dot neu"></div><span id="lbl-updated">FETCHING...</span></div>
+      <div class="s-item" style="margin-left:auto">
+        <button class="dl-btn" onclick="downloadCSV()">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <path d="M8 2v8M5 7l3 3 3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/>
+          </svg>
+          DOWNLOAD CSV
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart panel -->
+  <div class="panel" style="animation-delay:0.15s">
+    <div class="panel-title">// SENSOR HISTORY — <span id="chart-count">0</span> READINGS</div>
+    <div class="range-row">
+      <button class="pill" onclick="setRange(6)">6H</button>
+      <button class="pill" onclick="setRange(24)">24H</button>
+      <button class="pill active" onclick="setRange(168)">7D</button>
+      <button class="pill" onclick="setRange(720)">30D</button>
+      <button class="pill" onclick="setRange(0)">ALL</button>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
+
+  <!-- Daily averages panel -->
+  <div class="panel" style="animation-delay:0.25s">
+    <div class="panel-title">// DAILY AVERAGES</div>
+    <div class="bars-grid">
+      <div>
+        <div class="panel-title" style="color:var(--green);opacity:0.6;margin-bottom:10px">TEMPERATURE °C</div>
+        <div id="temp-bars"></div>
+      </div>
+      <div>
+        <div class="panel-title" style="color:var(--blue);opacity:0.6;margin-bottom:10px">HUMIDITY %</div>
+        <div id="hum-bars"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<footer>
+  DATA SOURCE: GOOGLE SHEETS &nbsp;|&nbsp; AUTO-REFRESH: 60s &nbsp;|&nbsp; <span id="footer-time">--</span>
+</footer>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT3xAijBSL7pBYGTRRFJEEDCaC58FstMWiVgdwowVJb54xn1Kn1JjS3K1ob4QZi3_oDs8bt6AlnfTVP/pub?output=csv';
+const SHEET_ID = '1yQdA1L-WGa4UPx_b7L_ruvk0pQMqQwek-ZXieJGoqu8';
+const REFRESH_MS = 60000; // auto-refresh every 60 seconds
+
+// ── STATE ───────────────────────────────────────────────────
+let allRows   = [];   // parsed CSV rows [{ts, temp, hum}]
+let rangeHours = 168; // default 7 days
+
+// ── CHART SETUP ─────────────────────────────────────────────
+const ctx = document.getElementById('chart').getContext('2d');
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [
+      {
+        label: 'TEMP °C',
+        data: [],
+        borderColor: '#00ff9c',
+        backgroundColor: 'rgba(0,255,150,0.06)',
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        borderWidth: 1.5,
+        yAxisID: 'y1'
+      },
+      {
+        label: 'HUM %',
+        data: [],
+        borderColor: '#00bfff',
+        backgroundColor: 'rgba(0,191,255,0.05)',
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        borderWidth: 1.5,
+        yAxisID: 'y2'
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    animation: { duration: 400 },
+    interaction: { mode: 'index', intersect: false },
+    scales: {
+      x: {
+        ticks: { color: 'rgba(0,255,150,0.5)', font: { size: 10, family: 'Share Tech Mono' }, maxTicksLimit: 10 },
+        grid:  { color: 'rgba(0,255,150,0.06)' }
+      },
+      y1: {
+        position: 'left',
+        ticks: { color: '#00ff9c', font: { size: 10, family: 'Share Tech Mono' } },
+        grid:  { color: 'rgba(0,255,150,0.07)' },
+        title: { display: true, text: '°C', color: '#00ff9c', font: { size: 10 } }
+      },
+      y2: {
+        position: 'right',
+        ticks: { color: '#00bfff', font: { size: 10, family: 'Share Tech Mono' } },
+        grid:  { drawOnChartArea: false },
+        title: { display: true, text: '%', color: '#00bfff', font: { size: 10 } }
+      }
+    },
+    plugins: {
+      legend: {
+        labels: { color: 'rgba(0,255,150,0.7)', font: { size: 11, family: 'Share Tech Mono' }, boxWidth: 12, padding: 20 }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0,20,10,0.95)',
+        borderColor: 'rgba(0,255,150,0.3)',
+        borderWidth: 1,
+        titleColor: '#00ff9c',
+        bodyColor: 'rgba(0,255,150,0.8)',
+        titleFont: { family: 'Share Tech Mono', size: 11 },
+        bodyFont:  { family: 'Share Tech Mono', size: 11 }
+      }
+    }
+  }
+});
+
+// ── FETCH & PARSE CSV ────────────────────────────────────────
+async function fetchData() {
+  try {
+    // Add cache-bust so we always get fresh data
+    const url = CSV_URL + '&cachebust=' + Date.now();
+    const res = await fetch(url);
+    const text = await res.text();
+
+    const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+
+    // Normalise rows — sheet columns: Timestamp, Temperature (°C), Humidity (%)
+    allRows = parsed.data
+      .map(r => {
+        const keys = Object.keys(r);
+        const ts   = new Date(r[keys[0]]);
+        const temp = parseFloat(r[keys[1]]);
+        const hum  = parseFloat(r[keys[2]]);
+        return { ts, temp, hum };
+      })
+      .filter(r => !isNaN(r.ts) && !isNaN(r.temp) && !isNaN(r.hum))
+      .sort((a, b) => a.ts - b.ts);
+
+    // Update status
+    setDot('dot-data', 'lbl-data', true, 'SHEETS CONNECTED', 'FETCH ERROR');
+    document.getElementById('lbl-rows').textContent = allRows.length + ' ROWS TOTAL';
+    document.getElementById('lbl-updated').textContent =
+      'UPDATED ' + new Date().toLocaleTimeString();
+    document.getElementById('footer-time').textContent =
+      new Date().toLocaleString();
+
+    renderAll();
+    hideLoader();
+
+  } catch(e) {
+    console.warn('[CYBERDECK] Fetch failed:', e);
+    setDot('dot-data', 'lbl-data', false, '', 'FETCH ERROR');
+    hideLoader();
+  }
+}
+
+// ── RENDER ALL ───────────────────────────────────────────────
+function renderAll() {
+  const filtered = filterByRange(allRows, rangeHours);
+  updateStats(filtered);
+  updateChart(filtered);
+  updateDailyBars(filtered);
+}
+
+// ── FILTER BY TIME RANGE ─────────────────────────────────────
+function filterByRange(rows, hours) {
+  if (!hours) return rows;  // 0 = all time
+  const cutoff = new Date(Date.now() - hours * 3600 * 1000);
+  return rows.filter(r => r.ts >= cutoff);
+}
+
+// ── STATS CARDS ──────────────────────────────────────────────
+function updateStats(rows) {
+  if (!rows.length) return;
+
+  const latest = rows[rows.length - 1];
+  const prev   = rows.length > 2 ? rows[rows.length - 2] : null;
+
+  // Current readings
+  setText('cur-temp', latest.temp.toFixed(1) + '<span class="s-unit">°C</span>');
+  setText('cur-hum',  latest.hum.toFixed(1)  + '<span class="s-unit">%</span>');
+
+  // Deltas vs previous reading
+  if (prev) {
+    const dt = (latest.temp - prev.temp).toFixed(1);
+    const dh = (latest.hum  - prev.hum ).toFixed(1);
+    setDelta('delta-temp', dt, '°C vs prev');
+    setDelta('delta-hum',  dh, '% vs prev');
+  }
+
+  // High / low
+  const temps = rows.map(r => r.temp);
+  const hums  = rows.map(r => r.hum);
+  const maxT  = Math.max(...temps);
+  const minT  = Math.min(...temps);
+  const avgT  = (temps.reduce((a,b)=>a+b,0) / temps.length).toFixed(1);
+  const avgH  = (hums.reduce((a,b)=>a+b,0)  / hums.length ).toFixed(1);
+
+  const highRow = rows.find(r => r.temp === maxT);
+  const lowRow  = rows.find(r => r.temp === minT);
+
+  setText('stat-high', maxT.toFixed(1) + '<span class="s-unit">°C</span>');
+  setText('stat-low',  minT.toFixed(1) + '<span class="s-unit">°C</span>');
+  document.getElementById('high-time').textContent = highRow ? fmtShort(highRow.ts) : '--';
+  document.getElementById('low-time').textContent  = lowRow  ? fmtShort(lowRow.ts)  : '--';
+  setText('stat-avgtemp', avgT + '<span class="s-unit">°C</span>');
+  setText('stat-avghum',  avgH + '<span class="s-unit">%</span>');
+}
+
+// ── CHART UPDATE ─────────────────────────────────────────────
+function updateChart(rows) {
+  // Downsample if more than 500 points to keep chart snappy
+  const data = rows.length > 500 ? downsample(rows, 500) : rows;
+
+  document.getElementById('chart-count').textContent = rows.length;
+
+  chart.data.labels           = data.map(r => fmtLabel(r.ts));
+  chart.data.datasets[0].data = data.map(r => r.temp);
+  chart.data.datasets[1].data = data.map(r => r.hum);
+  chart.update();
+}
+
+// ── DAILY BARS ───────────────────────────────────────────────
+function updateDailyBars(rows) {
+  // Group by calendar day
+  const days = {};
+  rows.forEach(r => {
+    const key = r.ts.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
+    if (!days[key]) days[key] = { temps:[], hums:[] };
+    days[key].temps.push(r.temp);
+    days[key].hums.push(r.hum);
+  });
+
+  const keys = Object.keys(days).slice(-7); // last 7 days only
+
+  const avgTemps = keys.map(k => avg(days[k].temps));
+  const avgHums  = keys.map(k => avg(days[k].hums));
+  const maxT = Math.max(...avgTemps) || 1;
+  const maxH = Math.max(...avgHums)  || 1;
+
+  document.getElementById('temp-bars').innerHTML = keys.map((k, i) =>
+    `<div class="bar-row">
+      <div class="bar-day">${k.split(' ')[0].toUpperCase()}</div>
+      <div class="bar-track"><div class="bar-fill green" style="width:${(avgTemps[i]/maxT*100).toFixed(0)}%"></div></div>
+      <div class="bar-num">${avgTemps[i].toFixed(1)}</div>
+    </div>`
+  ).join('');
+
+  document.getElementById('hum-bars').innerHTML = keys.map((k, i) =>
+    `<div class="bar-row">
+      <div class="bar-day">${k.split(' ')[0].toUpperCase()}</div>
+      <div class="bar-track"><div class="bar-fill blue" style="width:${(avgHums[i]/maxH*100).toFixed(0)}%"></div></div>
+      <div class="bar-num">${avgHums[i].toFixed(1)}</div>
+    </div>`
+  ).join('');
+}
+
+// ── CSV DOWNLOAD ─────────────────────────────────────────────
+function downloadCSV() {
+  const rows = filterByRange(allRows, rangeHours);
+  const header = 'Timestamp,Temperature (°C),Humidity (%)\n';
+  const body   = rows.map(r =>
+    `${r.ts.toISOString()},${r.temp.toFixed(1)},${r.hum.toFixed(1)}`
+  ).join('\n');
+  const blob = new Blob([header + body], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `cyberdeck_log_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── RANGE BUTTONS ─────────────────────────────────────────────
+function setRange(hours) {
+  rangeHours = hours;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  renderAll();
+}
+
+// ── HELPERS ──────────────────────────────────────────────────
+function setText(id, html) {
+  document.getElementById(id).innerHTML = html;
+}
+function setDot(dotId, lblId, ok, okText, failText) {
+  document.getElementById(dotId).classList.toggle('fault', !ok);
+  document.getElementById(lblId).textContent = ok ? okText : failText;
+}
+function setDelta(id, val, suffix) {
+  const n = parseFloat(val);
+  const el = document.getElementById(id);
+  el.className = 's-delta ' + (n > 0 ? 'up' : n < 0 ? 'down' : 'neu');
+  el.textContent = (n > 0 ? '▲ +' : n < 0 ? '▼ ' : '— ') + val + ' ' + suffix;
+}
+function fmtLabel(d) {
+  return d.toLocaleString('en-GB', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+function fmtShort(d) {
+  return d.toLocaleString('en-GB', { weekday:'short', hour:'2-digit', minute:'2-digit' });
+}
+function avg(arr) {
+  return arr.reduce((a,b)=>a+b,0) / arr.length;
+}
+function downsample(rows, n) {
+  const step = Math.ceil(rows.length / n);
+  return rows.filter((_, i) => i % step === 0);
+}
+function hideLoader() {
+  const l = document.getElementById('loader');
+  l.style.opacity = '0';
+  setTimeout(() => l.style.display = 'none', 500);
+}
+
+// ── FOOTER CLOCK ─────────────────────────────────────────────
+setInterval(() => {
+  document.getElementById('footer-time').textContent = new Date().toLocaleString();
+}, 1000);
+
+// ── BOOT ─────────────────────────────────────────────────────
+fetchData();
+setInterval(fetchData, REFRESH_MS);
+</script>
+</body>
+</html>

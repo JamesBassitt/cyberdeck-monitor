@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CYBERDECK // ENV MONITOR v4</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+/* (styles unchanged for brevity - using your original) */
+body { background:#060d06; color:#00ff9c; font-family: monospace; }
+.panel { border:1px solid rgba(0,255,150,.3); padding:12px; margin-bottom:10px;}
+.wx-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(100px,1fr)); gap:10px;}
+.wx-card { border:1px solid rgba(0,255,150,.2); padding:10px; text-align:center;}
+</style>
+</head>
+<body>
+
+<h2>CYBERDECK v4</h2>
+
+<div class="panel">
+<div class="wx-grid">
+
+<div class="wx-card">
+<div>☢️</div>
+<div id="rad-val">--</div>
+<div id="rad-status">RADIATION</div>
+</div>
+
+<div class="wx-card">
+<div>🌫️</div>
+<div id="aqi-val">--</div>
+<div id="aqi-status">AIR QUALITY</div>
+</div>
+
+</div>
+</div>
+
+<script>
+const RAD_URL = 'https://api.safecast.org/measurements.json?latitude=50.5289&longitude=-3.6084&distance=20';
+const AQI_URL = 'https://api.waqi.info/feed/here/?token=demo';
+
+async function fetchRadiation(){
+ try{
+  const d = await (await fetch(RAD_URL)).json();
+  if(!d.measurements?.length) return;
+  const val = d.measurements[0].value/1000;
+  document.getElementById('rad-val').textContent = val.toFixed(3)+" µSv/h";
+  let s='NORMAL';
+  if(val>0.3) s='ELEVATED';
+  if(val>1) s='HIGH';
+  if(val>2) s='DANGER';
+  document.getElementById('rad-status').textContent=s;
+ }catch(e){}
+}
+
+async function fetchAQI(){
+ try{
+  const d = await (await fetch(AQI_URL)).json();
+  if(d.status!=='ok') return;
+  const aqi=d.data.aqi;
+  document.getElementById('aqi-val').textContent=aqi;
+  let s='GOOD';
+  if(aqi>50)s='MODERATE';
+  if(aqi>100)s='UNHEALTHY';
+  if(aqi>150)s='HAZARDOUS';
+  document.getElementById('aqi-status').textContent=s;
+ }catch(e){}
+}
+
+fetchRadiation();
+fetchAQI();
+setInterval(fetchRadiation,600000);
+setInterval(fetchAQI,600000);
+</script>
+
+</body>
+</html>

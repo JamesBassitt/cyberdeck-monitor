@@ -11,15 +11,17 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── CSS variables — green theme (Device 1) is default ── */
 :root {
   --green:  #00ff9c;
   --blue:   #00bfff;
   --amber:  #ffaa00;
+  --purple: #bf7fff;
   --red:    #ff4444;
-  --border: rgba(0,255,150,0.30);
   --bg:     #060d06;
-  --bg2:    rgba(0,20,10,0.80);
-  --glow:   0 0 20px rgba(0,255,150,0.12);
+  --bg2:    rgba(0,20,10,0.82);
+  --border: rgba(0,255,150,0.28);
+  --glow:   0 0 20px rgba(0,255,150,0.10);
   --mono:   'Share Tech Mono', monospace;
   --head:   'Orbitron', monospace;
 }
@@ -32,6 +34,7 @@ body {
   font-family: var(--mono);
   min-height: 100vh;
   padding: 20px 16px 48px;
+  /* scanline effect */
   background-image: repeating-linear-gradient(
     0deg, transparent, transparent 2px,
     rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px
@@ -42,18 +45,52 @@ body {
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-.wrap { max-width: 1140px; margin: 0 auto; }
+.wrap { max-width: 1200px; margin: 0 auto; }
 
+/* ── Header ── */
 header { text-align: center; margin-bottom: 24px; animation: fadeDown .5s ease both; }
 header h1 {
   font-family: var(--head);
-  font-size: clamp(1.3em, 4vw, 2.2em);
+  font-size: clamp(1.2em, 4vw, 2.1em);
   font-weight: 900;
   letter-spacing: 4px;
   text-shadow: 0 0 28px rgba(0,255,150,.7), 0 0 60px rgba(0,255,150,.2);
 }
-header .sub { font-size: .62em; letter-spacing: 3px; opacity: .4; margin-top: 4px; }
+header .sub { font-size: .6em; letter-spacing: 3px; opacity: .38; margin-top: 4px; }
 
+/* ── Device tab buttons ── */
+.dev-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(0,255,150,.15);
+  padding-bottom: 12px;
+}
+/* Green tab — Device 1 */
+.dev-tab {
+  font-family: var(--mono);
+  font-size: .65em;
+  letter-spacing: 2px;
+  padding: 6px 18px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--green);
+  cursor: pointer;
+  transition: background .2s;
+}
+.dev-tab:hover  { background: rgba(0,255,150,.07); }
+.dev-tab.active { background: rgba(0,255,150,.13); border-color: var(--green); box-shadow: 0 0 10px rgba(0,255,150,.15); }
+/* Amber tab — Device 2 */
+.dev-tab.d2 { color: var(--amber); border-color: rgba(255,170,0,.3); }
+.dev-tab.d2:hover  { background: rgba(255,170,0,.07); }
+.dev-tab.d2.active { background: rgba(255,170,0,.12); border-color: var(--amber); box-shadow: 0 0 10px rgba(255,170,0,.15); }
+
+/* ── Device content sections — only active one is shown ── */
+.dev-section { display: none; }
+.dev-section.active { display: block; }
+
+/* ── Panel ── */
 .panel {
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -63,20 +100,27 @@ header .sub { font-size: .62em; letter-spacing: 3px; opacity: .4; margin-top: 4p
   box-shadow: var(--glow);
   animation: fadeUp .5s ease both;
 }
-.panel:nth-child(1){animation-delay:.05s}
-.panel:nth-child(2){animation-delay:.12s}
-.panel:nth-child(3){animation-delay:.19s}
-.panel:nth-child(4){animation-delay:.26s}
-.panel:nth-child(5){animation-delay:.33s}
+/* Amber-bordered panels for Device 2 */
+.panel.d2 {
+  border-color: rgba(255,170,0,.30);
+  background: rgba(10,8,0,.85);
+  box-shadow: 0 0 20px rgba(255,170,0,.08);
+}
+.panel:nth-child(1){animation-delay:.05s} .panel:nth-child(2){animation-delay:.12s}
+.panel:nth-child(3){animation-delay:.19s} .panel:nth-child(4){animation-delay:.26s}
+.panel:nth-child(5){animation-delay:.33s} .panel:nth-child(6){animation-delay:.40s}
 
 .ptitle { font-size: .61em; letter-spacing: 2px; opacity: .4; margin-bottom: 14px; }
+.ptitle.amber { color: var(--amber); opacity: .55; }
 
+/* ── Two-column layout for indoor/outdoor side by side ── */
 .col2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 @media(max-width:700px){ .col2 { grid-template-columns: 1fr; } }
 
+/* ── Stat cards ── */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px,1fr));
   gap: 10px;
   margin-bottom: 14px;
 }
@@ -88,164 +132,177 @@ header .sub { font-size: .62em; letter-spacing: 3px; opacity: .4; margin-top: 4p
   text-align: center;
   transition: box-shadow .3s;
 }
-.stat:hover { box-shadow: 0 0 14px rgba(0,255,150,.18); }
+/* Amber-bordered stats for Device 2 */
+.stat.d2 {
+  background: rgba(255,170,0,.03);
+  border-color: rgba(255,170,0,.22);
+}
+.stat:hover   { box-shadow: 0 0 14px rgba(0,255,150,.16); }
+.stat.d2:hover{ box-shadow: 0 0 14px rgba(255,170,0,.18); }
+
 .sv {
   font-family: var(--head);
-  font-size: 1.85em;
+  font-size: 1.75em;
   font-weight: 700;
   line-height: 1;
-  text-shadow: 0 0 10px rgba(0,255,150,.45);
+  text-shadow: 0 0 10px rgba(0,255,150,.4);
 }
-.sv.blue  { color: var(--blue);  text-shadow: 0 0 10px rgba(0,191,255,.45); }
-.sv.amber { color: var(--amber); text-shadow: 0 0 10px rgba(255,170,0,.45); }
+.sv.blue   { color: var(--blue);   text-shadow: 0 0 10px rgba(0,191,255,.4); }
+.sv.amber  { color: var(--amber);  text-shadow: 0 0 10px rgba(255,170,0,.4); }
+.sv.purple { color: var(--purple); text-shadow: 0 0 10px rgba(191,127,255,.4); }
+.sv.green  { color: var(--green);  text-shadow: 0 0 10px rgba(0,255,150,.4); }
 .su { font-size: .42em; opacity: .55; margin-left: 2px; }
-.sl { font-size: .57em; letter-spacing: 2px; opacity: .45; margin-top: 5px; }
-.sd { font-size: .57em; margin-top: 3px; }
+.sl { font-size: .56em; letter-spacing: 2px; opacity: .44; margin-top: 5px; }
+.sd { font-size: .56em; margin-top: 3px; }
 .up   { color: var(--green); }
 .down { color: var(--red); }
-.neu  { color: rgba(0,255,150,.4); }
+.neu  { color: rgba(0,255,150,.38); }
 
+/* ── Air quality badge (Device 2) ── */
+.aq-badge {
+  display: inline-block;
+  font-size: .55em;
+  letter-spacing: 1px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin-top: 5px;
+  font-weight: bold;
+}
+.aq-excellent { background: rgba(0,255,150,.15); color: #00ff9c; }
+.aq-good      { background: rgba(0,191,255,.15); color: #00bfff; }
+.aq-fair      { background: rgba(255,170,0,.15);  color: #ffaa00; }
+.aq-poor      { background: rgba(255,100,0,.15);  color: #ff6600; }
+.aq-verypoor  { background: rgba(255,68,68,.15);  color: #ff4444; }
+
+/* ── Lux bar (Device 2) ── */
+.lux-wrap { margin: 6px 0 2px; }
+.lux-track { width: 100%; height: 6px; background: rgba(255,170,0,.08); border-radius: 4px; overflow: hidden; }
+.lux-fill  { height: 100%; border-radius: 4px; background: linear-gradient(to right,#001133,#003366,#ffaa00,#ffffff); transition: width .8s ease; }
+.lux-labels{ display: flex; justify-content: space-between; font-size: .5em; opacity: .28; margin-top: 3px; }
+
+/* ── Status bar ── */
 .status-bar {
   display: flex; flex-wrap: wrap; gap: 14px;
-  font-size: .63em; letter-spacing: 1px;
+  font-size: .62em; letter-spacing: 1px;
   padding-top: 12px;
-  border-top: 1px solid rgba(0,255,150,.12);
-  margin-top: 4px; align-items: center;
+  border-top: 1px solid rgba(0,255,150,.1);
+  margin-top: 4px;
+  align-items: center;
 }
+.status-bar.d2 { border-top-color: rgba(255,170,0,.12); }
 .si { display: flex; align-items: center; gap: 6px; }
+
+/* Green dot (Device 1) */
 .dot {
   width: 7px; height: 7px; border-radius: 50%;
   background: var(--green); flex-shrink: 0;
   animation: blink 1.6s infinite;
   transition: background .4s;
 }
+/* Amber dot variant (Device 2) */
+.dot.amber { background: var(--amber); box-shadow: 0 0 6px rgba(255,170,0,.6); }
 .dot.fault { background: var(--red); animation: none; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
 
+/* ── Range pills ── */
 .range-row { display: flex; gap: 7px; margin-bottom: 12px; flex-wrap: wrap; }
 .pill {
-  font-family: var(--mono); font-size: .61em; letter-spacing: 1px;
-  padding: 3px 12px;
-  border: 1px solid var(--border); border-radius: 20px;
-  background: transparent; color: var(--green);
-  cursor: pointer; transition: background .2s;
+  font-family: var(--mono); font-size: .6em; letter-spacing: 1px;
+  padding: 3px 12px; border: 1px solid var(--border); border-radius: 20px;
+  background: transparent; color: var(--green); cursor: pointer; transition: background .2s;
 }
-.pill:hover { background: rgba(0,255,150,.08); }
-.pill.active {
-  background: rgba(0,255,150,.13);
-  box-shadow: 0 0 8px rgba(0,255,150,.2);
-  border-color: var(--green);
-}
+.pill:hover  { background: rgba(0,255,150,.07); }
+.pill.active { background: rgba(0,255,150,.13); border-color: var(--green); }
+/* Amber pill variant */
+.pill.d2 { color: var(--amber); border-color: rgba(255,170,0,.3); }
+.pill.d2:hover  { background: rgba(255,170,0,.07); }
+.pill.d2.active { background: rgba(255,170,0,.12); border-color: var(--amber); }
 
 canvas { max-height: 280px; }
 
-/* outdoor weather cards */
-.wx-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
-  gap: 9px;
-}
+/* ── Outdoor weather cards ── */
+.wx-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(105px,1fr)); gap: 9px; }
 .wx-card {
-  background: rgba(0,255,150,.03);
-  border: 1px solid rgba(0,255,150,.16);
-  border-radius: 6px;
-  padding: 11px 8px;
-  text-align: center;
+  background: rgba(0,255,150,.03); border: 1px solid rgba(0,255,150,.16);
+  border-radius: 6px; padding: 11px 8px; text-align: center;
 }
 .wx-icon { font-size: 1.9em; margin-bottom: 5px; line-height: 1; }
-.wx-val  { font-family: var(--head); font-size: 1.2em; font-weight: 700; }
-.wx-lbl  { font-size: .56em; letter-spacing: 2px; opacity: .42; margin-top: 4px; }
+.wx-val  { font-family: var(--head); font-size: 1.15em; font-weight: 700; }
+.wx-lbl  { font-size: .55em; letter-spacing: 2px; opacity: .42; margin-top: 4px; }
 
-/* daylight bar */
+/* ── Daylight progress bar ── */
 .sun-row {
   display: flex; align-items: center; gap: 10px;
   margin-top: 14px; padding-top: 12px;
   border-top: 1px solid rgba(0,255,150,.1);
-  font-size: .63em;
+  font-size: .62em;
 }
-.sun-track {
-  flex: 1; height: 5px;
-  background: rgba(0,255,150,.07);
-  border-radius: 3px; position: relative; overflow: visible;
-}
-.sun-fill {
-  height: 100%; background: var(--amber);
-  border-radius: 3px; transition: width .8s ease;
-  box-shadow: 0 0 7px rgba(255,170,0,.5);
-}
+.sun-track { flex: 1; height: 5px; background: rgba(0,255,150,.07); border-radius: 3px; position: relative; overflow: visible; }
+.sun-fill  { height: 100%; background: var(--amber); border-radius: 3px; transition: width .8s ease; box-shadow: 0 0 7px rgba(255,170,0,.5); }
 .sun-thumb {
-  position: absolute; top: 50%;
-  transform: translate(-50%,-50%);
-  width: 9px; height: 9px; border-radius: 50%;
-  background: var(--amber);
-  box-shadow: 0 0 9px rgba(255,170,0,.8);
-  transition: left .8s ease;
+  position: absolute; top: 50%; transform: translate(-50%,-50%);
+  width: 9px; height: 9px; border-radius: 50%; background: var(--amber);
+  box-shadow: 0 0 9px rgba(255,170,0,.8); transition: left .8s ease;
 }
 
-/* wind compass */
+/* ── Wind compass ── */
 .compass-wrap { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px; }
 .compass {
   width: 66px; height: 66px; border-radius: 50%;
-  border: 1px solid var(--border);
-  position: relative; flex-shrink: 0;
-  background: rgba(0,20,10,.6);
+  border: 1px solid var(--border); position: relative;
+  flex-shrink: 0; background: rgba(0,20,10,.6);
 }
-.compass-n {
-  position: absolute; top: 4px; left: 50%;
-  transform: translateX(-50%);
-  font-size: .52em; opacity: .45; letter-spacing: 1px;
-}
+.compass-n { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); font-size: .52em; opacity: .45; }
 .compass-arrow {
   position: absolute; top: 50%; left: 50%;
   width: 2px; height: 26px;
   background: linear-gradient(to top, transparent 35%, var(--green) 100%);
   transform-origin: bottom center;
   transform: translateX(-50%) translateY(-100%) rotate(0deg);
-  transition: transform .8s ease;
-  border-radius: 2px;
+  transition: transform .8s ease; border-radius: 2px;
 }
 .compass-dot {
   position: absolute; top: 50%; left: 50%;
   width: 5px; height: 5px; border-radius: 50%;
-  background: var(--green);
-  transform: translate(-50%,-50%);
+  background: var(--green); transform: translate(-50%,-50%);
   box-shadow: 0 0 5px var(--green);
 }
 
-/* radar */
-.radar-frame {
-  width: 100%; height: 340px;
-  border: none; border-radius: 6px;
-  display: block;
-}
+/* ── Rain radar iframe ── */
+.radar-frame { width: 100%; height: 340px; border: none; border-radius: 6px; display: block; }
 
-/* daily bars */
+/* ── Daily average bars ── */
 .bars-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 @media(max-width:560px){ .bars-grid { grid-template-columns: 1fr; } }
 .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
-.bar-day { font-size: .61em; width: 28px; opacity: .5; text-align: right; }
-.bar-track { flex: 1; height: 5px; background: rgba(0,255,150,.07); border-radius: 3px; overflow: hidden; }
-.bar-fill  { height: 100%; border-radius: 3px; transition: width .7s ease; }
-.bar-fill.green { background: var(--green); }
-.bar-fill.blue  { background: var(--blue); }
-.bar-num { font-size: .61em; width: 34px; opacity: .6; text-align: right; }
+.bar-day  { font-size: .6em; width: 28px; opacity: .5; text-align: right; }
+.bar-track{ flex: 1; height: 5px; background: rgba(0,255,150,.07); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; transition: width .7s ease; }
+.bar-fill.green  { background: var(--green); }
+.bar-fill.blue   { background: var(--blue); }
+.bar-fill.amber  { background: var(--amber); }
+.bar-fill.purple { background: var(--purple); }
+.bar-num  { font-size: .6em; width: 40px; opacity: .6; text-align: right; }
 
+/* ── Download / action buttons ── */
 .dl-btn {
-  font-family: var(--mono); font-size: .63em; letter-spacing: 2px;
-  padding: 7px 16px;
-  border: 1px solid var(--green); border-radius: 4px;
+  font-family: var(--mono); font-size: .62em; letter-spacing: 2px;
+  padding: 7px 16px; border: 1px solid var(--green); border-radius: 4px;
   background: transparent; color: var(--green);
-  cursor: pointer; transition: background .2s, box-shadow .2s;
+  cursor: pointer; transition: background .2s;
   display: inline-flex; align-items: center; gap: 7px;
 }
-.dl-btn:hover { background: rgba(0,255,150,.1); box-shadow: 0 0 12px rgba(0,255,150,.2); }
+.dl-btn:hover { background: rgba(0,255,150,.1); }
+.dl-btn.amber { border-color: var(--amber); color: var(--amber); }
+.dl-btn.amber:hover { background: rgba(255,170,0,.1); }
 .dl-btn svg { width: 12px; height: 12px; }
 
 footer {
-  text-align: center; font-size: .57em;
-  letter-spacing: 2px; opacity: .28; margin-top: 18px;
+  text-align: center; font-size: .56em;
+  letter-spacing: 2px; opacity: .27; margin-top: 18px;
 }
 
+/* ── Loading overlay ── */
 #loader {
   position: fixed; inset: 0; background: var(--bg);
   display: flex; flex-direction: column;
@@ -278,455 +335,761 @@ footer {
 
   <header>
     <h1>[ENV] CYBERDECK MONITOR</h1>
-    <div class="sub">ESP32 // DHT22 // OPEN-METEO // WINDY.COM // NEWTON ABBOT, DEVON // v3.0</div>
+    <div class="sub">ESP32 x2 // DHT22 // BME680 // BH1750 // OPEN-METEO // NEWTON ABBOT // v4.0</div>
   </header>
 
-  <!-- PANEL 1 — Live readings -->
-  <div class="panel">
-    <div class="ptitle">// LIVE READINGS</div>
-    <div class="col2">
+  <!-- Device selector tabs -->
+  <div class="dev-tabs">
+    <button class="dev-tab active" onclick="switchDev(1,this)">// DEVICE 1 — DHT22</button>
+    <button class="dev-tab d2"    onclick="switchDev(2,this)">// DEVICE 2 — BME680 + BH1750</button>
+  </div>
 
-      <!-- Indoor -->
-      <div>
-        <div class="ptitle" style="opacity:.5;margin-bottom:10px">INDOOR — ESP32 / DHT22</div>
-        <div class="stats-grid">
-          <div class="stat">
-            <div class="sv" id="in-temp">--<span class="su">°C</span></div>
-            <div class="sl">TEMPERATURE</div>
-            <div class="sd neu" id="in-temp-d">--</div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       DEVICE 1 — green theme — DHT22 + outdoor weather
+  ═══════════════════════════════════════════════════════ -->
+  <div class="dev-section active" id="dev1">
+
+    <!-- Live readings: indoor left, outdoor right -->
+    <div class="panel">
+      <div class="ptitle">// LIVE READINGS</div>
+      <div class="col2">
+
+        <!-- Indoor — pulled from Google Sheets Device1 tab -->
+        <div>
+          <div class="ptitle" style="opacity:.5;margin-bottom:10px">INDOOR — ESP32 #1 / DHT22</div>
+          <div class="stats-grid">
+            <div class="stat">
+              <div class="sv" id="d1-temp">--<span class="su">°C</span></div>
+              <div class="sl">TEMPERATURE</div>
+              <div class="sd neu" id="d1-temp-d">--</div>
+            </div>
+            <div class="stat">
+              <div class="sv blue" id="d1-hum">--<span class="su">%</span></div>
+              <div class="sl">HUMIDITY</div>
+              <div class="sd neu" id="d1-hum-d">--</div>
+            </div>
           </div>
-          <div class="stat">
-            <div class="sv blue" id="in-hum">--<span class="su">%</span></div>
-            <div class="sl">HUMIDITY</div>
-            <div class="sd neu" id="in-hum-d">--</div>
+        </div>
+
+        <!-- Outdoor — pulled from Open-Meteo free API (no key needed) -->
+        <div>
+          <div class="ptitle" style="opacity:.5;margin-bottom:10px">OUTDOOR — OPEN-METEO / NEWTON ABBOT</div>
+          <div class="wx-grid">
+            <div class="wx-card">
+              <div class="wx-icon" id="wx-icon">--</div>
+              <div class="wx-val" id="wx-temp">--<span style="font-size:.48em;opacity:.55"> °C</span></div>
+              <div class="wx-lbl" id="wx-desc">LOADING</div>
+            </div>
+            <div class="wx-card">
+              <div class="wx-icon">💨</div>
+              <div class="wx-val" id="wx-wind">--<span style="font-size:.48em;opacity:.55"> km/h</span></div>
+              <div class="wx-lbl" id="wx-wdir">WIND</div>
+            </div>
+            <div class="wx-card">
+              <div class="wx-icon">🌅</div>
+              <div class="wx-val" style="font-size:1em" id="wx-rise">--:--</div>
+              <div class="wx-lbl">SUNRISE</div>
+            </div>
+            <div class="wx-card">
+              <div class="wx-icon">🌇</div>
+              <div class="wx-val" style="font-size:1em" id="wx-set">--:--</div>
+              <div class="wx-lbl">SUNSET</div>
+            </div>
+          </div>
+          <!-- Daylight progress bar -->
+          <div class="sun-row">
+            <span id="sun-rise-lbl" style="opacity:.45;min-width:36px">--:--</span>
+            <div class="sun-track">
+              <div class="sun-fill" id="sun-fill" style="width:0%"></div>
+              <div class="sun-thumb" id="sun-thumb" style="left:0%"></div>
+            </div>
+            <span id="sun-set-lbl" style="opacity:.45;min-width:36px;text-align:right">--:--</span>
+          </div>
+          <!-- Wind compass -->
+          <div class="compass-wrap">
+            <div class="compass">
+              <div class="compass-n">N</div>
+              <div class="compass-arrow" id="compass-arrow"></div>
+              <div class="compass-dot"></div>
+            </div>
+            <div style="font-size:.62em;opacity:.6;line-height:1.9">
+              <div id="wind-spd">-- km/h</div>
+              <div id="wind-deg">--°</div>
+              <div id="wind-dir" style="opacity:.5">--</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Outdoor -->
-      <div>
-        <div class="ptitle" style="opacity:.5;margin-bottom:10px">OUTDOOR — OPEN-METEO / NEWTON ABBOT</div>
-        <div class="wx-grid">
-          <div class="wx-card">
-            <div class="wx-icon" id="wx-icon">--</div>
-            <div class="wx-val" id="wx-temp">--<span style="font-size:.48em;opacity:.55"> °C</span></div>
-            <div class="wx-lbl" id="wx-desc">LOADING</div>
-          </div>
-          <div class="wx-card">
-            <div class="wx-icon">💨</div>
-            <div class="wx-val" id="wx-wind">--<span style="font-size:.48em;opacity:.55"> km/h</span></div>
-            <div class="wx-lbl" id="wx-wdir">WIND</div>
-          </div>
-          <div class="wx-card">
-            <div class="wx-icon">🌅</div>
-            <div class="wx-val" style="font-size:1.05em" id="wx-rise">--:--</div>
-            <div class="wx-lbl">SUNRISE</div>
-          </div>
-          <div class="wx-card">
-            <div class="wx-icon">🌇</div>
-            <div class="wx-val" style="font-size:1.05em" id="wx-set">--:--</div>
-            <div class="wx-lbl">SUNSET</div>
-          </div>
-        </div>
+      <!-- Summary stats row -->
+      <div class="stats-grid" style="margin-top:14px">
+        <div class="stat"><div class="sv" id="d1-high">--<span class="su">°C</span></div><div class="sl">7D HIGH</div><div class="sd neu" id="d1-high-t">--</div></div>
+        <div class="stat"><div class="sv" id="d1-low">--<span class="su">°C</span></div><div class="sl">7D LOW</div><div class="sd neu" id="d1-low-t">--</div></div>
+        <div class="stat"><div class="sv" id="d1-avgt">--<span class="su">°C</span></div><div class="sl">7D AVG TEMP</div></div>
+        <div class="stat"><div class="sv blue" id="d1-avgh">--<span class="su">%</span></div><div class="sl">7D AVG HUM</div></div>
+        <div class="stat"><div class="sv amber" id="d1-delta">--<span class="su">°C</span></div><div class="sl">IN/OUT DIFF</div><div class="sd neu" id="d1-delta-lbl">--</div></div>
+      </div>
 
-        <!-- Daylight bar -->
-        <div class="sun-row">
-          <span id="sun-rise-lbl" style="opacity:.45;min-width:38px">--:--</span>
-          <div class="sun-track">
-            <div class="sun-fill" id="sun-fill" style="width:0%"></div>
-            <div class="sun-thumb" id="sun-thumb" style="left:0%"></div>
-          </div>
-          <span id="sun-set-lbl" style="opacity:.45;min-width:38px;text-align:right">--:--</span>
-        </div>
-
-        <!-- Wind compass -->
-        <div class="compass-wrap">
-          <div class="compass">
-            <div class="compass-n">N</div>
-            <div class="compass-arrow" id="compass-arrow"></div>
-            <div class="compass-dot"></div>
-          </div>
-          <div style="font-size:.63em;opacity:.65;line-height:1.9">
-            <div id="wind-spd">-- km/h</div>
-            <div id="wind-deg">--°</div>
-            <div id="wind-dir" style="opacity:.5">--</div>
-          </div>
+      <div class="status-bar">
+        <div class="si"><div class="dot" id="d1-dot-s"></div><span id="d1-lbl-s">LOADING...</span></div>
+        <div class="si"><div class="dot" id="dot-wx"></div><span id="lbl-wx">WEATHER...</span></div>
+        <div class="si"><div class="dot"></div><span id="d1-lbl-u">FETCHING</span></div>
+        <div class="si" style="margin-left:auto">
+          <button class="dl-btn" onclick="downloadCSV(1)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 2v8M5 7l3 3 3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
+            DOWNLOAD CSV
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Summary stats -->
-    <div class="stats-grid" style="margin-top:14px">
-      <div class="stat">
-        <div class="sv" id="stat-high">--<span class="su">°C</span></div>
-        <div class="sl">7D HIGH</div>
-        <div class="sd neu" id="high-time">--</div>
+    <!-- Device 1 sensor history chart -->
+    <div class="panel">
+      <div class="ptitle">// INDOOR SENSOR LOG — <span id="d1-count">0</span> READINGS</div>
+      <div class="range-row">
+        <button class="pill" onclick="setRange(1,6,this)">6H</button>
+        <button class="pill" onclick="setRange(1,24,this)">24H</button>
+        <button class="pill active" onclick="setRange(1,168,this)">7D</button>
+        <button class="pill" onclick="setRange(1,720,this)">30D</button>
+        <button class="pill" onclick="setRange(1,0,this)">ALL</button>
       </div>
-      <div class="stat">
-        <div class="sv" id="stat-low">--<span class="su">°C</span></div>
-        <div class="sl">7D LOW</div>
-        <div class="sd neu" id="low-time">--</div>
-      </div>
-      <div class="stat">
-        <div class="sv" id="stat-avgt">--<span class="su">°C</span></div>
-        <div class="sl">7D AVG TEMP</div>
-      </div>
-      <div class="stat">
-        <div class="sv blue" id="stat-avgh">--<span class="su">%</span></div>
-        <div class="sl">7D AVG HUM</div>
-      </div>
-      <div class="stat">
-        <div class="sv amber" id="stat-delta">--<span class="su">°C</span></div>
-        <div class="sl">IN/OUT DIFF</div>
-        <div class="sd neu" id="delta-lbl">--</div>
+      <canvas id="d1-chart"></canvas>
+    </div>
+
+    <!-- Windy.com rain radar centred on Newton Abbot -->
+    <div class="panel">
+      <div class="ptitle">// RAIN RADAR — DEVON &amp; SOUTH WEST — WINDY.COM</div>
+      <iframe class="radar-frame"
+        src="https://embed.windy.com/embed2.html?lat=50.529&lon=-3.608&detailLat=50.529&detailLon=-3.608&width=650&height=340&zoom=8&level=surface&overlay=rain&product=ecmwf&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
+        allowfullscreen>
+      </iframe>
+    </div>
+
+    <!-- Device 1 daily average bars -->
+    <div class="panel">
+      <div class="ptitle">// DAILY AVERAGES — DEVICE 1</div>
+      <div class="bars-grid">
+        <div>
+          <div class="ptitle" style="color:var(--green);opacity:.55;margin-bottom:8px">TEMPERATURE °C</div>
+          <div id="d1-temp-bars"></div>
+        </div>
+        <div>
+          <div class="ptitle" style="color:var(--blue);opacity:.55;margin-bottom:8px">HUMIDITY %</div>
+          <div id="d1-hum-bars"></div>
+        </div>
       </div>
     </div>
 
-    <div class="status-bar">
-      <div class="si"><div class="dot" id="dot-sheets"></div><span id="lbl-sheets">LOADING...</span></div>
-      <div class="si"><div class="dot" id="dot-wx"></div><span id="lbl-wx">WEATHER...</span></div>
-      <div class="si"><div class="dot"></div><span id="lbl-updated">FETCHING</span></div>
-      <div class="si" style="margin-left:auto">
-        <button class="dl-btn" onclick="downloadCSV()">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-            <path d="M8 2v8M5 7l3 3 3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/>
-          </svg>
-          DOWNLOAD CSV
-        </button>
+  </div><!-- /dev1 -->
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       DEVICE 2 — amber theme — BME680 + BH1750
+  ═══════════════════════════════════════════════════════ -->
+  <div class="dev-section" id="dev2">
+
+    <!-- Live readings — 5 sensors -->
+    <div class="panel d2">
+      <div class="ptitle amber">// LIVE READINGS — ESP32 #2 / BME680 + BH1750</div>
+      <div class="stats-grid">
+        <div class="stat d2">
+          <div class="sv amber" id="d2-temp">--<span class="su">°C</span></div>
+          <div class="sl">TEMPERATURE</div>
+          <div class="sd neu" id="d2-temp-d">--</div>
+        </div>
+        <div class="stat d2">
+          <div class="sv blue" id="d2-hum">--<span class="su">%</span></div>
+          <div class="sl">HUMIDITY</div>
+          <div class="sd neu" id="d2-hum-d">--</div>
+        </div>
+        <div class="stat d2">
+          <div class="sv amber" id="d2-press">--<span class="su">hPa</span></div>
+          <div class="sl">PRESSURE</div>
+          <div class="sd neu" id="d2-press-d">--</div>
+        </div>
+        <div class="stat d2">
+          <div class="sv purple" id="d2-gas">--<span class="su">kΩ</span></div>
+          <div class="sl">AIR QUALITY</div>
+          <div id="d2-aq-badge"><span class="aq-badge aq-fair">READING...</span></div>
+        </div>
+        <div class="stat d2">
+          <div class="sv green" id="d2-lux">--<span class="su">lx</span></div>
+          <div class="sl">LIGHT LEVEL</div>
+          <div class="sd neu" id="d2-lux-lbl">--</div>
+          <div class="lux-wrap">
+            <div class="lux-track"><div class="lux-fill" id="d2-lux-fill" style="width:0%"></div></div>
+            <div class="lux-labels"><span>DARK</span><span>OFFICE</span><span>OUTDOOR</span></div>
+          </div>
+        </div>
+        <div class="stat d2">
+          <div class="sv amber" id="d2-high">--<span class="su">°C</span></div>
+          <div class="sl">7D HIGH</div>
+          <div class="sd neu" id="d2-high-t">--</div>
+        </div>
+        <div class="stat d2">
+          <div class="sv amber" id="d2-low">--<span class="su">°C</span></div>
+          <div class="sl">7D LOW</div>
+          <div class="sd neu" id="d2-low-t">--</div>
+        </div>
+        <div class="stat d2">
+          <div class="sv amber" id="d2-avgt">--<span class="su">°C</span></div>
+          <div class="sl">7D AVG TEMP</div>
+        </div>
+        <div class="stat d2">
+          <div class="sv blue" id="d2-avgh">--<span class="su">%</span></div>
+          <div class="sl">7D AVG HUM</div>
+        </div>
+        <div class="stat d2">
+          <div class="sv amber" id="d2-avgpress">--<span class="su">hPa</span></div>
+          <div class="sl">7D AVG PRESS</div>
+        </div>
+      </div>
+
+      <div class="status-bar d2">
+        <div class="si"><div class="dot amber" id="d2-dot-s"></div><span id="d2-lbl-s">LOADING...</span></div>
+        <div class="si"><div class="dot amber" id="d2-dot-sh"></div><span id="d2-lbl-sh">SHEETS...</span></div>
+        <div class="si"><div class="dot amber"></div><span id="d2-lbl-u">FETCHING</span></div>
+        <div class="si" style="margin-left:auto">
+          <button class="dl-btn amber" onclick="downloadCSV(2)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 2v8M5 7l3 3 3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
+            DOWNLOAD CSV
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- PANEL 2 — Chart -->
-  <div class="panel">
-    <div class="ptitle">// INDOOR SENSOR LOG — <span id="chart-count">0</span> READINGS</div>
-    <div class="range-row">
-      <button class="pill" onclick="setRange(6,this)">6H</button>
-      <button class="pill" onclick="setRange(24,this)">24H</button>
-      <button class="pill active" onclick="setRange(168,this)">7D</button>
-      <button class="pill" onclick="setRange(720,this)">30D</button>
-      <button class="pill" onclick="setRange(0,this)">ALL</button>
-    </div>
-    <canvas id="chart"></canvas>
-  </div>
-
-  <!-- PANEL 3 — Radar -->
-  <div class="panel">
-    <div class="ptitle">// RAIN RADAR — DEVON &amp; SOUTH WEST — WINDY.COM</div>
-    <iframe
-      class="radar-frame"
-      src="https://embed.windy.com/embed2.html?lat=50.529&lon=-3.608&detailLat=50.529&detailLon=-3.608&width=650&height=340&zoom=8&level=surface&overlay=rain&product=ecmwf&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
-      allowfullscreen>
-    </iframe>
-  </div>
-
-  <!-- PANEL 4 — Daily bars -->
-  <div class="panel">
-    <div class="ptitle">// DAILY AVERAGES — INDOOR</div>
-    <div class="bars-grid">
-      <div>
-        <div class="ptitle" style="color:var(--green);opacity:.55;margin-bottom:8px">TEMPERATURE °C</div>
-        <div id="temp-bars"></div>
+    <!-- Device 2 temperature + humidity chart -->
+    <div class="panel d2">
+      <div class="ptitle amber">// SENSOR LOG — <span id="d2-count">0</span> READINGS</div>
+      <div class="range-row">
+        <button class="pill d2" onclick="setRange(2,6,this)">6H</button>
+        <button class="pill d2" onclick="setRange(2,24,this)">24H</button>
+        <button class="pill d2 active" onclick="setRange(2,168,this)">7D</button>
+        <button class="pill d2" onclick="setRange(2,720,this)">30D</button>
+        <button class="pill d2" onclick="setRange(2,0,this)">ALL</button>
       </div>
-      <div>
-        <div class="ptitle" style="color:var(--blue);opacity:.55;margin-bottom:8px">HUMIDITY %</div>
-        <div id="hum-bars"></div>
+      <canvas id="d2-chart-th"></canvas>
+    </div>
+
+    <!-- Device 2 pressure chart -->
+    <div class="panel d2">
+      <div class="ptitle amber">// PRESSURE LOG (hPa)</div>
+      <canvas id="d2-chart-press"></canvas>
+    </div>
+
+    <!-- Device 2 lux chart -->
+    <div class="panel d2">
+      <div class="ptitle amber">// LIGHT LEVEL LOG (lux)</div>
+      <canvas id="d2-chart-lux"></canvas>
+    </div>
+
+    <!-- Device 2 daily averages — 4 columns -->
+    <div class="panel d2">
+      <div class="ptitle amber">// DAILY AVERAGES — DEVICE 2</div>
+      <div class="bars-grid">
+        <div>
+          <div class="ptitle" style="color:var(--amber);opacity:.55;margin-bottom:8px">TEMPERATURE °C</div>
+          <div id="d2-temp-bars"></div>
+        </div>
+        <div>
+          <div class="ptitle" style="color:var(--blue);opacity:.55;margin-bottom:8px">HUMIDITY %</div>
+          <div id="d2-hum-bars"></div>
+        </div>
+        <div>
+          <div class="ptitle" style="color:var(--amber);opacity:.55;margin-bottom:8px">PRESSURE hPa</div>
+          <div id="d2-press-bars"></div>
+        </div>
+        <div>
+          <div class="ptitle" style="color:var(--purple);opacity:.55;margin-bottom:8px">AIR QUALITY kΩ</div>
+          <div id="d2-gas-bars"></div>
+        </div>
       </div>
     </div>
-  </div>
 
-</div>
+  </div><!-- /dev2 -->
+
+</div><!-- /wrap -->
 
 <footer>
-  INDOOR: GOOGLE SHEETS &nbsp;|&nbsp;
-  OUTDOOR: OPEN-METEO (FREE, NO KEY) &nbsp;|&nbsp;
+  DEVICE 1: GOOGLE SHEETS (Device1 tab) &nbsp;|&nbsp;
+  DEVICE 2: GOOGLE SHEETS (Device2 tab) &nbsp;|&nbsp;
+  WEATHER: OPEN-METEO (FREE) &nbsp;|&nbsp;
   RADAR: WINDY.COM &nbsp;|&nbsp;
   AUTO-REFRESH: 60s &nbsp;|&nbsp;
   <span id="footer-time">--</span>
 </footer>
 
+
 <script>
-// ── CONFIG ───────────────────────────────────────────────────
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT3xAijBSL7pBYGTRRFJEEDCaC58FstMWiVgdwowVJb54xn1Kn1JjS3K1ob4QZi3_oDs8bt6AlnfTVP/pub?output=csv';
-const WX_URL  = 'https://api.open-meteo.com/v1/forecast?latitude=50.5289&longitude=-3.6084' +
-                '&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,weather_code,is_day' +
-                '&daily=sunrise,sunset&timezone=Europe%2FLondon&forecast_days=1';
-const REFRESH = 60000;
+// ════════════════════════════════════════════════════════════
+//  CONFIG
+//  Update CSV_D1 and CSV_D2 with your published sheet URLs.
+//  gid=0 is the first tab (Device1).
+//  After Device2 tab is created, click it in the sheet,
+//  copy the gid number from the URL bar and replace
+//  0000000000 below.
+// ════════════════════════════════════════════════════════════
+const SHEET_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT3xAijBSL7pBYGTRRFJEEDCaC58FstMWiVgdwowVJb54xn1Kn1JjS3K1ob4QZi3_oDs8bt6AlnfTVP/pub';
+const CSV_D1 = SHEET_BASE + '?output=csv&gid=0';
+// Replace 0000000000 with the real gid of your Device2 tab
+const CSV_D2 = SHEET_BASE + '?output=csv&gid=649256372';
 
-// ── STATE ────────────────────────────────────────────────────
-let allRows    = [];
-let rangeHours = 168;
-let lastInTemp = NaN;
-let lastOutTemp= NaN;
+// Open-Meteo: free, no API key, coordinates for Newton Abbot
+const WX_URL = 'https://api.open-meteo.com/v1/forecast'
+  + '?latitude=50.5289&longitude=-3.6084'
+  + '&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,weather_code,is_day'
+  + '&daily=sunrise,sunset&timezone=Europe%2FLondon&forecast_days=1';
 
-// ── WMO CODE MAPS ────────────────────────────────────────────
+const REFRESH = 60000; // how often to re-fetch sheets data (ms)
+
+// ── State ──────────────────────────────────────────────────
+let rows1 = [], rows2 = [];    // parsed CSV data for each device
+let range1 = 168, range2 = 168; // current time range in hours (168 = 7 days)
+let lastInTemp = NaN, lastOutTemp = NaN; // for in/out delta card
+let activeDevice = 1;
+
+// ── WMO weather code maps ──────────────────────────────────
 const WX_DESC = {
   0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',
-  45:'Fog',48:'Rime fog',
-  51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',
-  61:'Light rain',63:'Rain',65:'Heavy rain',
-  71:'Light snow',73:'Snow',75:'Heavy snow',77:'Snow grains',
-  80:'Light showers',81:'Showers',82:'Heavy showers',
-  85:'Snow showers',86:'Heavy snow showers',
+  45:'Fog',48:'Rime fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',
+  61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',
+  75:'Heavy snow',77:'Snow grains',80:'Light showers',81:'Showers',
+  82:'Heavy showers',85:'Snow showers',86:'Heavy snow showers',
   95:'Thunderstorm',96:'T-storm + hail',99:'Heavy T-storm'
 };
-const WX_ICON = {
-  0:'☀️',1:'🌤️',2:'⛅',3:'☁️',
-  45:'🌫️',48:'🌫️',
-  51:'🌦️',53:'🌦️',55:'🌧️',
-  61:'🌧️',63:'🌧️',65:'🌧️',
-  71:'🌨️',73:'❄️',75:'❄️',77:'🌨️',
-  80:'🌦️',81:'🌧️',82:'⛈️',
-  85:'🌨️',86:'❄️',
-  95:'⛈️',96:'⛈️',99:'⛈️'
-};
+const WX_ICON  = { 0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'❄️',75:'❄️',77:'🌨️',80:'🌦️',81:'🌧️',82:'⛈️',85:'🌨️',86:'❄️',95:'⛈️',96:'⛈️',99:'⛈️' };
 const WX_NIGHT = { 0:'🌙',1:'🌙',2:'☁️',3:'☁️' };
-
 const WIND_DIRS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
-const windDir = deg => WIND_DIRS[Math.round(deg/22.5)%16];
+const windDir = d => WIND_DIRS[Math.round(d/22.5)%16];
 
-// ── CHART ────────────────────────────────────────────────────
-const chart = new Chart(document.getElementById('chart').getContext('2d'), {
+// ── Air quality label (BME680 gas resistance kΩ) ──────────
+function aqInfo(kOhm) {
+  if (kOhm > 300) return { label:'EXCELLENT', cls:'aq-excellent' };
+  if (kOhm > 150) return { label:'GOOD',      cls:'aq-good'      };
+  if (kOhm > 50)  return { label:'FAIR',      cls:'aq-fair'      };
+  if (kOhm > 20)  return { label:'POOR',      cls:'aq-poor'      };
+  return                  { label:'VERY POOR', cls:'aq-verypoor'  };
+}
+
+// ── Lux label ─────────────────────────────────────────────
+function luxLabel(lux) {
+  if (lux < 1)     return 'VERY DARK';
+  if (lux < 50)    return 'DIM';
+  if (lux < 200)   return 'INDOOR LOW';
+  if (lux < 500)   return 'INDOOR BRIGHT';
+  if (lux < 2000)  return 'OVERCAST DAY';
+  if (lux < 10000) return 'BRIGHT DAY';
+  return 'DIRECT SUNLIGHT';
+}
+
+// ── Logarithmic lux bar (0–10000+ → 0–100%) ──────────────
+function luxPct(lux) {
+  if (!lux || isNaN(lux) || lux <= 0) return 0;
+  return Math.min(Math.log10(lux) / Math.log10(10000) * 100, 100).toFixed(1);
+}
+
+// ════════════════════════════════════════════════════════════
+//  CHART SETUP
+// ════════════════════════════════════════════════════════════
+
+// Device 1 — green theme, dual Y axis (temp + humidity)
+const chartD1 = new Chart(document.getElementById('d1-chart').getContext('2d'), {
   type: 'line',
-  data: {
-    labels: [],
-    datasets: [
-      { label:'INDOOR TEMP °C', data:[], borderColor:'#00ff9c', backgroundColor:'rgba(0,255,150,.05)',
-        tension:.3, pointRadius:0, pointHoverRadius:4, borderWidth:1.5, yAxisID:'y1' },
-      { label:'INDOOR HUM %',   data:[], borderColor:'#00bfff', backgroundColor:'rgba(0,191,255,.04)',
-        tension:.3, pointRadius:0, pointHoverRadius:4, borderWidth:1.5, yAxisID:'y2' }
-    ]
-  },
-  options: {
-    responsive:true, animation:{duration:300},
-    interaction:{mode:'index',intersect:false},
-    scales: {
-      x:  { ticks:{color:'rgba(0,255,150,.45)',font:{size:10,family:'Share Tech Mono'},maxTicksLimit:9},
-             grid:{color:'rgba(0,255,150,.05)'} },
-      y1: { position:'left',  ticks:{color:'#00ff9c',font:{size:10,family:'Share Tech Mono'}},
-             grid:{color:'rgba(0,255,150,.06)'}, title:{display:true,text:'°C',color:'#00ff9c',font:{size:10}} },
-      y2: { position:'right', ticks:{color:'#00bfff',font:{size:10,family:'Share Tech Mono'}},
-             grid:{drawOnChartArea:false}, title:{display:true,text:'%',color:'#00bfff',font:{size:10}} }
-    },
-    plugins: {
-      legend:{ labels:{color:'rgba(0,255,150,.6)',font:{size:11,family:'Share Tech Mono'},boxWidth:12,padding:18} },
-      tooltip:{ backgroundColor:'rgba(0,20,10,.95)', borderColor:'rgba(0,255,150,.25)', borderWidth:1,
-                titleColor:'#00ff9c', bodyColor:'rgba(0,255,150,.75)',
-                titleFont:{family:'Share Tech Mono',size:11}, bodyFont:{family:'Share Tech Mono',size:11} }
-    }
-  }
+  data: { labels: [], datasets: [
+    { label:'INDOOR TEMP °C', data:[], borderColor:'#00ff9c', backgroundColor:'rgba(0,255,150,.05)', tension:.3, pointRadius:0, borderWidth:1.5, yAxisID:'y1' },
+    { label:'INDOOR HUM %',   data:[], borderColor:'#00bfff', backgroundColor:'rgba(0,191,255,.04)', tension:.3, pointRadius:0, borderWidth:1.5, yAxisID:'y2' }
+  ]},
+  options: chartOptions('#00ff9c', '#00bfff', '°C', '%', 'rgba(0,255,150,.05)', 'rgba(0,255,150,.06)')
 });
 
-// ── FETCH SHEETS ─────────────────────────────────────────────
-async function fetchSheets() {
+// Device 2 — amber theme, temp + humidity
+const chartD2TH = new Chart(document.getElementById('d2-chart-th').getContext('2d'), {
+  type: 'line',
+  data: { labels: [], datasets: [
+    { label:'TEMP °C', data:[], borderColor:'#ffaa00', backgroundColor:'rgba(255,170,0,.05)', tension:.3, pointRadius:0, borderWidth:1.5, yAxisID:'y1' },
+    { label:'HUM %',   data:[], borderColor:'#00bfff', backgroundColor:'rgba(0,191,255,.04)', tension:.3, pointRadius:0, borderWidth:1.5, yAxisID:'y2' }
+  ]},
+  options: chartOptions('#ffaa00', '#00bfff', '°C', '%', 'rgba(255,170,0,.05)', 'rgba(255,170,0,.06)')
+});
+
+// Device 2 — pressure (single axis)
+const chartD2Press = new Chart(document.getElementById('d2-chart-press').getContext('2d'), {
+  type: 'line',
+  data: { labels: [], datasets: [
+    { label:'PRESSURE hPa', data:[], borderColor:'#ffaa00', backgroundColor:'rgba(255,170,0,.05)', tension:.3, pointRadius:0, borderWidth:1.5, yAxisID:'y1' }
+  ]},
+  options: chartOptionsSingle('#ffaa00', 'hPa', 'rgba(255,170,0,.05)', 'rgba(255,170,0,.06)')
+});
+
+// Device 2 — lux (single axis)
+const chartD2Lux = new Chart(document.getElementById('d2-chart-lux').getContext('2d'), {
+  type: 'line',
+  data: { labels: [], datasets: [
+    { label:'LIGHT lux', data:[], borderColor:'#00ff9c', backgroundColor:'rgba(0,255,150,.05)', tension:.3, pointRadius:0, borderWidth:1.5, yAxisID:'y1' }
+  ]},
+  options: chartOptionsSingle('#00ff9c', 'lux', 'rgba(0,255,150,.05)', 'rgba(0,255,150,.06)')
+});
+
+// ── Chart option factories (keep DRY) ─────────────────────
+function chartOptions(c1, c2, l1, l2, gridColor, tickGrid) {
+  return {
+    responsive:true, animation:{duration:300},
+    interaction:{mode:'index',intersect:false},
+    scales:{
+      x:{ticks:{color:'rgba(0,255,150,.42)',font:{size:10,family:'Share Tech Mono'},maxTicksLimit:9},grid:{color:'rgba(0,255,150,.04)'}},
+      y1:{position:'left', ticks:{color:c1,font:{size:10,family:'Share Tech Mono'}},grid:{color:tickGrid},title:{display:true,text:l1,color:c1,font:{size:10}}},
+      y2:{position:'right',ticks:{color:c2,font:{size:10,family:'Share Tech Mono'}},grid:{drawOnChartArea:false},title:{display:true,text:l2,color:c2,font:{size:10}}}
+    },
+    plugins:{
+      legend:{labels:{color:'rgba(0,255,150,.6)',font:{size:11,family:'Share Tech Mono'},boxWidth:12,padding:16}},
+      tooltip:{backgroundColor:'rgba(0,20,10,.95)',borderColor:'rgba(0,255,150,.22)',borderWidth:1,titleColor:'#00ff9c',bodyColor:'rgba(0,255,150,.75)',titleFont:{family:'Share Tech Mono',size:11},bodyFont:{family:'Share Tech Mono',size:11}}
+    }
+  };
+}
+
+function chartOptionsSingle(c1, label, bgColor, gridColor) {
+  return {
+    responsive:true, animation:{duration:300},
+    interaction:{mode:'index',intersect:false},
+    scales:{
+      x:{ticks:{color:'rgba(255,170,0,.42)',font:{size:10,family:'Share Tech Mono'},maxTicksLimit:9},grid:{color:'rgba(255,170,0,.04)'}},
+      y1:{position:'left',ticks:{color:c1,font:{size:10,family:'Share Tech Mono'}},grid:{color:gridColor},title:{display:true,text:label,color:c1,font:{size:10}}}
+    },
+    plugins:{
+      legend:{labels:{color:'rgba(255,170,0,.6)',font:{size:11,family:'Share Tech Mono'},boxWidth:12,padding:16}},
+      tooltip:{backgroundColor:'rgba(5,4,0,.95)',borderColor:'rgba(255,170,0,.22)',borderWidth:1,titleColor:'#ffaa00',bodyColor:'rgba(255,170,0,.75)',titleFont:{family:'Share Tech Mono',size:11},bodyFont:{family:'Share Tech Mono',size:11}}
+    }
+  };
+}
+
+// ════════════════════════════════════════════════════════════
+//  DATA FETCHING
+// ════════════════════════════════════════════════════════════
+
+// Parse a CSV row into a typed object for Device 1 (temp, hum)
+async function fetchDevice1() {
   try {
-    const text = await (await fetch(CSV_URL + '&cb=' + Date.now())).text();
-    const parsed = Papa.parse(text, {header:true, skipEmptyLines:true});
-    allRows = parsed.data.map(r => {
+    const text = await (await fetch(CSV_D1 + '&cb=' + Date.now())).text();
+    const p = Papa.parse(text, { header:true, skipEmptyLines:true });
+    rows1 = p.data.map(r => {
       const k = Object.keys(r);
       return { ts:new Date(r[k[0]]), temp:parseFloat(r[k[1]]), hum:parseFloat(r[k[2]]) };
-    }).filter(r => !isNaN(r.ts.getTime()) && !isNaN(r.temp) && !isNaN(r.hum))
-      .sort((a,b) => a.ts - b.ts);
+    }).filter(r => !isNaN(r.ts.getTime()) && !isNaN(r.temp)).sort((a,b)=>a.ts-b.ts);
 
-    setDot('dot-sheets','lbl-sheets',true,'SHEETS OK — '+allRows.length+' ROWS','SHEETS ERROR');
-    document.getElementById('lbl-updated').textContent = 'UPDATED ' + new Date().toLocaleTimeString();
-    renderAll();
+    setDot('d1-dot-s','d1-lbl-s', true, 'SHEETS OK — '+rows1.length+' ROWS', 'SHEETS ERROR');
+    document.getElementById('d1-lbl-u').textContent = 'UPDATED '+new Date().toLocaleTimeString();
+    renderDevice1();
   } catch(e) {
-    console.warn('[Sheets]',e);
-    setDot('dot-sheets','lbl-sheets',false,'','SHEETS ERROR');
+    console.warn('[D1 fetch]',e);
+    setDot('d1-dot-s','d1-lbl-s', false, '', 'SHEETS ERROR');
   }
 }
 
-// ── FETCH WEATHER ────────────────────────────────────────────
+// Parse a CSV row for Device 2 (temp, hum, press, gas, lux)
+async function fetchDevice2() {
+  try {
+    const text = await (await fetch(CSV_D2 + '&cb=' + Date.now())).text();
+    const p = Papa.parse(text, { header:true, skipEmptyLines:true });
+    rows2 = p.data.map(r => {
+      const k = Object.keys(r);
+      return {
+        ts:    new Date(r[k[0]]),
+        temp:  parseFloat(r[k[1]]),
+        hum:   parseFloat(r[k[2]]),
+        press: parseFloat(r[k[3]]),
+        gas:   parseFloat(r[k[4]]),
+        lux:   parseFloat(r[k[5]])
+      };
+    }).filter(r => !isNaN(r.ts.getTime()) && !isNaN(r.temp)).sort((a,b)=>a.ts-b.ts);
+
+    setDot('d2-dot-s','d2-lbl-s',   true, 'SHEETS OK — '+rows2.length+' ROWS', 'SHEETS ERROR');
+    setDot('d2-dot-sh','d2-lbl-sh', true, 'SHEETS LOGGING', 'SHEETS PAUSED');
+    document.getElementById('d2-lbl-u').textContent = 'UPDATED '+new Date().toLocaleTimeString();
+    renderDevice2();
+  } catch(e) {
+    console.warn('[D2 fetch]',e);
+    setDot('d2-dot-s','d2-lbl-s',   false, '', 'SHEETS ERROR — check Device2 tab gid');
+    setDot('d2-dot-sh','d2-lbl-sh', false, '', 'SHEETS PAUSED');
+  }
+}
+
+// Fetch current weather + sunrise/sunset from Open-Meteo
 async function fetchWeather() {
   try {
     const d = await (await fetch(WX_URL)).json();
     const c = d.current;
-    const code  = c.weather_code;
-    const isDay = c.is_day;
-    const icon  = (!isDay && WX_NIGHT[code]) ? WX_NIGHT[code] : (WX_ICON[code] || '🌡️');
-    const desc  = WX_DESC[code] || 'Unknown';
-    const temp  = c.temperature_2m.toFixed(1);
-    const wind  = c.wind_speed_10m.toFixed(0);
-    const wdeg  = c.wind_direction_10m;
+    const code=c.weather_code, isDay=c.is_day;
+    const icon=(!isDay&&WX_NIGHT[code])?WX_NIGHT[code]:(WX_ICON[code]||'🌡️');
+    const desc=WX_DESC[code]||'Unknown';
+    const temp=c.temperature_2m.toFixed(1);
+    const wind=c.wind_speed_10m.toFixed(0);
+    const wdeg=c.wind_direction_10m;
 
-    // Cards
-    document.getElementById('wx-icon').textContent = icon;
-    document.getElementById('wx-temp').innerHTML   = temp + '<span style="font-size:.48em;opacity:.55"> °C</span>';
+    setHTML('wx-icon', icon);
+    setHTML('wx-temp', temp+'<span style="font-size:.48em;opacity:.55"> °C</span>');
     document.getElementById('wx-desc').textContent = desc.toUpperCase();
-    document.getElementById('wx-wind').innerHTML   = wind + '<span style="font-size:.48em;opacity:.55"> km/h</span>';
-    document.getElementById('wx-wdir').textContent = windDir(wdeg) + ' WIND';
-
-    // Compass
-    document.getElementById('wind-spd').textContent = wind + ' km/h';
-    document.getElementById('wind-deg').textContent = wdeg + '°';
+    setHTML('wx-wind', wind+'<span style="font-size:.48em;opacity:.55"> km/h</span>');
+    document.getElementById('wx-wdir').textContent = windDir(wdeg)+' WIND';
+    document.getElementById('wind-spd').textContent = wind+' km/h';
+    document.getElementById('wind-deg').textContent = wdeg+'°';
     document.getElementById('wind-dir').textContent = windDir(wdeg);
     document.getElementById('compass-arrow').style.transform =
       `translateX(-50%) translateY(-100%) rotate(${wdeg}deg)`;
 
-    // Sunrise/sunset
     const rise = d.daily.sunrise[0].split('T')[1].substring(0,5);
     const set  = d.daily.sunset[0].split('T')[1].substring(0,5);
-    document.getElementById('wx-rise').textContent    = rise;
-    document.getElementById('wx-set').textContent     = set;
-    document.getElementById('sun-rise-lbl').textContent = rise;
-    document.getElementById('sun-set-lbl').textContent  = set;
+    ['wx-rise','sun-rise-lbl'].forEach(id => document.getElementById(id).textContent=rise);
+    ['wx-set', 'sun-set-lbl' ].forEach(id => document.getElementById(id).textContent=set);
 
-    // Daylight bar
-    const rMs = new Date(d.daily.sunrise[0]).getTime();
-    const sMs = new Date(d.daily.sunset[0]).getTime();
-    const nMs = Date.now();
-    let pct = nMs < rMs ? 0 : nMs > sMs ? 100 : ((nMs-rMs)/(sMs-rMs)*100).toFixed(1);
-    document.getElementById('sun-fill').style.width = pct + '%';
-    document.getElementById('sun-thumb').style.left = pct + '%';
+    // Daylight progress bar position
+    const rMs=new Date(d.daily.sunrise[0]).getTime();
+    const sMs=new Date(d.daily.sunset[0]).getTime();
+    const nMs=Date.now();
+    const pct=nMs<rMs?0:nMs>sMs?100:((nMs-rMs)/(sMs-rMs)*100).toFixed(1);
+    document.getElementById('sun-fill').style.width=pct+'%';
+    document.getElementById('sun-thumb').style.left=pct+'%';
 
-    // In/out delta
     lastOutTemp = parseFloat(temp);
     updateDelta();
-
-    setDot('dot-wx','lbl-wx',true,'WEATHER OK — ' + desc.toUpperCase(),'WEATHER ERROR');
+    setDot('dot-wx','lbl-wx', true, 'WEATHER OK — '+desc.toUpperCase(), 'WEATHER ERROR');
   } catch(e) {
-    console.warn('[Weather]',e);
-    setDot('dot-wx','lbl-wx',false,'','WEATHER ERROR');
+    console.warn('[weather]',e);
+    setDot('dot-wx','lbl-wx', false, '', 'WEATHER ERROR');
   }
 }
 
-// ── RENDER ───────────────────────────────────────────────────
-function renderAll() {
-  const rows = filter(allRows, rangeHours);
-  updateIndoor(rows);
-  updateChart(rows);
-  updateBars(rows);
-}
+// ════════════════════════════════════════════════════════════
+//  RENDER FUNCTIONS
+// ════════════════════════════════════════════════════════════
 
-function filter(rows, h) {
-  if (!h) return rows;
-  const cut = new Date(Date.now() - h*3600000);
-  return rows.filter(r => r.ts >= cut);
-}
-
-function updateIndoor(rows) {
+function renderDevice1() {
+  const rows = filterByRange(rows1, range1);
   if (!rows.length) return;
-  const latest = rows[rows.length-1];
-  const prev   = rows.length > 1 ? rows[rows.length-2] : null;
 
-  setHTML('in-temp', latest.temp.toFixed(1)+'<span class="su">°C</span>');
-  setHTML('in-hum',  latest.hum.toFixed(1) +'<span class="su">%</span>');
+  const latest=rows[rows.length-1], prev=rows.length>1?rows[rows.length-2]:null;
+
+  setHTML('d1-temp', latest.temp.toFixed(1)+'<span class="su">°C</span>');
+  setHTML('d1-hum',  latest.hum.toFixed(1) +'<span class="su">%</span>');
   lastInTemp = latest.temp;
   updateDelta();
 
   if (prev) {
-    setDelta('in-temp-d', (latest.temp-prev.temp).toFixed(1), '°C vs prev');
-    setDelta('in-hum-d',  (latest.hum -prev.hum ).toFixed(1), '% vs prev');
+    setDelta('d1-temp-d', (latest.temp-prev.temp).toFixed(1), '°C');
+    setDelta('d1-hum-d',  (latest.hum -prev.hum ).toFixed(1), '%');
   }
 
-  const temps = rows.map(r=>r.temp);
-  const hums  = rows.map(r=>r.hum);
-  const maxT  = Math.max(...temps);
-  const minT  = Math.min(...temps);
+  const temps=rows.map(r=>r.temp), hums=rows.map(r=>r.hum);
+  const maxT=Math.max(...temps), minT=Math.min(...temps);
+  setHTML('d1-high', maxT.toFixed(1)+'<span class="su">°C</span>');
+  setHTML('d1-low',  minT.toFixed(1)+'<span class="su">°C</span>');
+  document.getElementById('d1-high-t').textContent = fmtShort(rows.find(r=>r.temp===maxT).ts);
+  document.getElementById('d1-low-t').textContent  = fmtShort(rows.find(r=>r.temp===minT).ts);
+  setHTML('d1-avgt', avg(temps).toFixed(1)+'<span class="su">°C</span>');
+  setHTML('d1-avgh', avg(hums).toFixed(1) +'<span class="su">%</span>');
 
-  setHTML('stat-high', maxT.toFixed(1)+'<span class="su">°C</span>');
-  setHTML('stat-low',  minT.toFixed(1)+'<span class="su">°C</span>');
-  document.getElementById('high-time').textContent = fmtShort(rows.find(r=>r.temp===maxT).ts);
-  document.getElementById('low-time').textContent  = fmtShort(rows.find(r=>r.temp===minT).ts);
-  setHTML('stat-avgt', avg(temps).toFixed(1)+'<span class="su">°C</span>');
-  setHTML('stat-avgh', avg(hums).toFixed(1) +'<span class="su">%</span>');
+  document.getElementById('d1-count').textContent = rows.length;
+  const cd = rows.length>500 ? downsample(rows,500) : rows;
+  chartD1.data.labels           = cd.map(r=>fmtLabel(r.ts));
+  chartD1.data.datasets[0].data = cd.map(r=>r.temp);
+  chartD1.data.datasets[1].data = cd.map(r=>r.hum);
+  chartD1.update();
+
+  renderBars2('d1-temp-bars','d1-hum-bars', rows, 'green','blue');
 }
 
+function renderDevice2() {
+  const rows = filterByRange(rows2, range2);
+  if (!rows.length) return;
+
+  const latest=rows[rows.length-1], prev=rows.length>1?rows[rows.length-2]:null;
+
+  setHTML('d2-temp',  latest.temp.toFixed(1)  +'<span class="su">°C</span>');
+  setHTML('d2-hum',   latest.hum.toFixed(1)   +'<span class="su">%</span>');
+  setHTML('d2-press', latest.press.toFixed(0) +'<span class="su">hPa</span>');
+  setHTML('d2-gas',   latest.gas.toFixed(1)   +'<span class="su">kΩ</span>');
+  setHTML('d2-lux',   Math.round(latest.lux)  +'<span class="su">lx</span>');
+
+  if (prev) {
+    setDelta('d2-temp-d',  (latest.temp -prev.temp ).toFixed(1), '°C');
+    setDelta('d2-hum-d',   (latest.hum  -prev.hum  ).toFixed(1), '%');
+    setDelta('d2-press-d', (latest.press-prev.press).toFixed(1), 'hPa');
+  }
+
+  // Air quality badge
+  const aq = aqInfo(latest.gas);
+  document.getElementById('d2-aq-badge').innerHTML =
+    '<span class="aq-badge '+aq.cls+'">'+aq.label+'</span>';
+
+  // Lux label and bar
+  document.getElementById('d2-lux-lbl').textContent = luxLabel(latest.lux);
+  document.getElementById('d2-lux-fill').style.width = luxPct(latest.lux)+'%';
+
+  // Summary stats
+  const temps=rows.map(r=>r.temp), hums=rows.map(r=>r.hum);
+  const press=rows.map(r=>r.press);
+  const maxT=Math.max(...temps), minT=Math.min(...temps);
+  setHTML('d2-high', maxT.toFixed(1)+'<span class="su">°C</span>');
+  setHTML('d2-low',  minT.toFixed(1)+'<span class="su">°C</span>');
+  document.getElementById('d2-high-t').textContent = fmtShort(rows.find(r=>r.temp===maxT).ts);
+  document.getElementById('d2-low-t').textContent  = fmtShort(rows.find(r=>r.temp===minT).ts);
+  setHTML('d2-avgt',    avg(temps).toFixed(1)+'<span class="su">°C</span>');
+  setHTML('d2-avgh',    avg(hums).toFixed(1) +'<span class="su">%</span>');
+  setHTML('d2-avgpress',avg(press).toFixed(0)+'<span class="su">hPa</span>');
+
+  document.getElementById('d2-count').textContent = rows.length;
+  const cd = rows.length>500 ? downsample(rows,500) : rows;
+
+  chartD2TH.data.labels           = cd.map(r=>fmtLabel(r.ts));
+  chartD2TH.data.datasets[0].data = cd.map(r=>r.temp);
+  chartD2TH.data.datasets[1].data = cd.map(r=>r.hum);
+  chartD2TH.update();
+
+  chartD2Press.data.labels           = cd.map(r=>fmtLabel(r.ts));
+  chartD2Press.data.datasets[0].data = cd.map(r=>r.press);
+  chartD2Press.update();
+
+  chartD2Lux.data.labels           = cd.map(r=>fmtLabel(r.ts));
+  chartD2Lux.data.datasets[0].data = cd.map(r=>r.lux);
+  chartD2Lux.update();
+
+  renderBars4('d2-temp-bars','d2-hum-bars','d2-press-bars','d2-gas-bars', rows);
+}
+
+// Update the indoor/outdoor temperature difference card
 function updateDelta() {
   if (isNaN(lastInTemp) || isNaN(lastOutTemp)) return;
   const d = (lastInTemp - lastOutTemp).toFixed(1);
-  setHTML('stat-delta', Math.abs(d)+'<span class="su">°C</span>');
-  document.getElementById('delta-lbl').textContent =
-    parseFloat(d) > 0 ? 'INDOOR WARMER' : parseFloat(d) < 0 ? 'OUTDOOR WARMER' : 'SAME TEMP';
+  setHTML('d1-delta', Math.abs(d)+'<span class="su">°C</span>');
+  document.getElementById('d1-delta-lbl').textContent =
+    parseFloat(d)>0 ? 'INDOOR WARMER' : parseFloat(d)<0 ? 'OUTDOOR WARMER' : 'SAME TEMP';
 }
 
-function updateChart(rows) {
-  const data = rows.length > 500 ? downsample(rows,500) : rows;
-  document.getElementById('chart-count').textContent = rows.length;
-  chart.data.labels           = data.map(r=>fmtLabel(r.ts));
-  chart.data.datasets[0].data = data.map(r=>r.temp);
-  chart.data.datasets[1].data = data.map(r=>r.hum);
-  chart.update();
+// ── Daily bar charts ──────────────────────────────────────
+
+// Two-column bars (Device 1 — temp + hum)
+function renderBars2(tId, hId, rows, tColor, hColor) {
+  const days = groupByDay(rows);
+  const keys = Object.keys(days).slice(-7);
+  const at=keys.map(k=>avg(days[k].temps)), ah=keys.map(k=>avg(days[k].hums));
+  const mt=Math.max(...at)||1, mh=Math.max(...ah)||1;
+  document.getElementById(tId).innerHTML = keys.map((k,i)=>barRow(k,at[i],mt,tColor,1)).join('');
+  document.getElementById(hId).innerHTML = keys.map((k,i)=>barRow(k,ah[i],mh,hColor,1)).join('');
 }
 
-function updateBars(rows) {
+// Four-column bars (Device 2 — temp, hum, press, gas)
+function renderBars4(tId, hId, pId, gId, rows) {
+  const days = groupByDay(rows);
+  const keys = Object.keys(days).slice(-7);
+  const at=keys.map(k=>avg(days[k].temps));
+  const ah=keys.map(k=>avg(days[k].hums));
+  const ap=keys.map(k=>avg(days[k].press||[0]));
+  const ag=keys.map(k=>avg(days[k].gas||[0]));
+  const mt=Math.max(...at)||1, mh=Math.max(...ah)||1;
+  const mp=Math.max(...ap)||1, mg=Math.max(...ag)||1;
+  document.getElementById(tId).innerHTML = keys.map((k,i)=>barRow(k,at[i],mt,'amber',1)).join('');
+  document.getElementById(hId).innerHTML = keys.map((k,i)=>barRow(k,ah[i],mh,'blue', 1)).join('');
+  document.getElementById(pId).innerHTML = keys.map((k,i)=>barRow(k,ap[i],mp,'amber',0)).join('');
+  document.getElementById(gId).innerHTML = keys.map((k,i)=>barRow(k,ag[i],mg,'purple',1)).join('');
+}
+
+// Group rows by calendar day
+function groupByDay(rows) {
   const days = {};
   rows.forEach(r => {
     const k = r.ts.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
-    if (!days[k]) days[k]={temps:[],hums:[]};
+    if (!days[k]) days[k] = { temps:[], hums:[], press:[], gas:[] };
     days[k].temps.push(r.temp);
     days[k].hums.push(r.hum);
+    if (r.press) days[k].press.push(r.press);
+    if (r.gas)   days[k].gas.push(r.gas);
   });
-  const keys = Object.keys(days).slice(-7);
-  const at = keys.map(k=>avg(days[k].temps));
-  const ah = keys.map(k=>avg(days[k].hums));
-  const mt = Math.max(...at)||1;
-  const mh = Math.max(...ah)||1;
-
-  document.getElementById('temp-bars').innerHTML = keys.map((k,i) =>
-    `<div class="bar-row">
-      <div class="bar-day">${k.split(' ')[0].toUpperCase()}</div>
-      <div class="bar-track"><div class="bar-fill green" style="width:${(at[i]/mt*100).toFixed(0)}%"></div></div>
-      <div class="bar-num">${at[i].toFixed(1)}</div>
-    </div>`).join('');
-
-  document.getElementById('hum-bars').innerHTML = keys.map((k,i) =>
-    `<div class="bar-row">
-      <div class="bar-day">${k.split(' ')[0].toUpperCase()}</div>
-      <div class="bar-track"><div class="bar-fill blue" style="width:${(ah[i]/mh*100).toFixed(0)}%"></div></div>
-      <div class="bar-num">${ah[i].toFixed(1)}</div>
-    </div>`).join('');
+  return days;
 }
 
-// ── CSV DOWNLOAD ─────────────────────────────────────────────
-function downloadCSV() {
-  const rows = filter(allRows, rangeHours);
-  const csv  = 'Timestamp,Temperature (C),Humidity (%)\n' +
-    rows.map(r=>`${r.ts.toISOString()},${r.temp.toFixed(1)},${r.hum.toFixed(1)}`).join('\n');
+// Build a single bar row HTML string
+function barRow(k, val, maxVal, color, decimals) {
+  const pct = (val/maxVal*100).toFixed(0);
+  return `<div class="bar-row">
+    <div class="bar-day">${k.split(' ')[0].toUpperCase()}</div>
+    <div class="bar-track"><div class="bar-fill ${color}" style="width:${pct}%"></div></div>
+    <div class="bar-num">${decimals ? val.toFixed(1) : val.toFixed(0)}</div>
+  </div>`;
+}
+
+// ── CSV download ──────────────────────────────────────────
+function downloadCSV(dev) {
+  const rows = filterByRange(dev===1?rows1:rows2, dev===1?range1:range2);
+  const header = dev===1
+    ? 'Timestamp,Temperature (C),Humidity (%)\n'
+    : 'Timestamp,Temperature (C),Humidity (%),Pressure (hPa),Gas (kOhm),Light (lux)\n';
+  const body = rows.map(r => dev===1
+    ? `${r.ts.toISOString()},${r.temp.toFixed(1)},${r.hum.toFixed(1)}`
+    : `${r.ts.toISOString()},${r.temp.toFixed(1)},${r.hum.toFixed(1)},${r.press.toFixed(1)},${r.gas.toFixed(1)},${Math.round(r.lux)}`
+  ).join('\n');
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download = `cyberdeck_${new Date().toISOString().slice(0,10)}.csv`;
+  a.href = URL.createObjectURL(new Blob([header+body],{type:'text/csv'}));
+  a.download = `cyberdeck_dev${dev}_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
   URL.revokeObjectURL(a.href);
 }
 
-// ── RANGE PILLS ──────────────────────────────────────────────
-function setRange(h, btn) {
-  rangeHours = h;
-  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+// ── Tab switching ─────────────────────────────────────────
+function switchDev(n, btn) {
+  activeDevice = n;
+  document.querySelectorAll('.dev-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.dev-section').forEach(s=>s.classList.remove('active'));
   btn.classList.add('active');
-  renderAll();
+  document.getElementById('dev'+n).classList.add('active');
 }
 
-// ── HELPERS ──────────────────────────────────────────────────
-function setHTML(id,html){ document.getElementById(id).innerHTML = html; }
-function setDot(dId,lId,ok,okTxt,failTxt){
-  document.getElementById(dId).classList.toggle('fault',!ok);
-  document.getElementById(lId).textContent = ok ? okTxt : failTxt;
+// ── Range pill selection ──────────────────────────────────
+function setRange(dev, h, btn) {
+  if (dev===1) range1=h; else range2=h;
+  document.getElementById('dev'+dev)
+    .querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  if (dev===1) renderDevice1(); else renderDevice2();
 }
-function setDelta(id,val,suffix){
+
+// ════════════════════════════════════════════════════════════
+//  UTILITY HELPERS
+// ════════════════════════════════════════════════════════════
+function setHTML(id, html) { document.getElementById(id).innerHTML = html; }
+
+function setDot(dId, lId, ok, okT, failT) {
+  document.getElementById(dId).classList.toggle('fault', !ok);
+  document.getElementById(lId).textContent = ok ? okT : failT;
+}
+
+function setDelta(id, val, suffix) {
   const n=parseFloat(val), el=document.getElementById(id);
-  el.className='sd '+(n>0?'up':n<0?'down':'neu');
-  el.textContent=(n>0?'▲ +':n<0?'▼ ':'— ')+val+' '+suffix;
+  el.className = 'sd ' + (n>0?'up':n<0?'down':'neu');
+  el.textContent = (n>0?'▲ +':n<0?'▼ ':'— ') + val + ' ' + suffix;
 }
-function fmtLabel(d){ return d.toLocaleString('en-GB',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
-function fmtShort(d){ return d.toLocaleString('en-GB',{weekday:'short',hour:'2-digit',minute:'2-digit'}); }
-function avg(a){ return a.reduce((s,v)=>s+v,0)/a.length; }
+
+function fmtLabel(d) { return d.toLocaleString('en-GB',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function fmtShort(d) { return d.toLocaleString('en-GB',{weekday:'short',hour:'2-digit',minute:'2-digit'}); }
+function avg(a)      { return a.reduce((s,v)=>s+v,0)/a.length; }
 function downsample(rows,n){ const s=Math.ceil(rows.length/n); return rows.filter((_,i)=>i%s===0); }
-function hideLoader(){
+function filterByRange(rows,h){ if(!h)return rows; const c=new Date(Date.now()-h*3600000); return rows.filter(r=>r.ts>=c); }
+
+function hideLoader() {
   const l=document.getElementById('loader');
   l.style.opacity='0';
   setTimeout(()=>l.style.display='none',500);
 }
 
-// ── FOOTER CLOCK ─────────────────────────────────────────────
-setInterval(()=>{ document.getElementById('footer-time').textContent = new Date().toLocaleString(); }, 1000);
+// ── Footer clock ──────────────────────────────────────────
+setInterval(()=>{ document.getElementById('footer-time').textContent=new Date().toLocaleString(); }, 1000);
 
-// ── BOOT ─────────────────────────────────────────────────────
-Promise.all([fetchSheets(), fetchWeather()]).then(hideLoader);
-setInterval(fetchSheets,  REFRESH);
-setInterval(fetchWeather, REFRESH * 5);
+// ════════════════════════════════════════════════════════════
+//  BOOT — fetch everything in parallel then hide loader
+// ════════════════════════════════════════════════════════════
+Promise.all([fetchDevice1(), fetchDevice2(), fetchWeather()]).then(hideLoader);
+setInterval(fetchDevice1, REFRESH);
+setInterval(fetchDevice2, REFRESH);
+setInterval(fetchWeather, REFRESH * 5);  // weather every 5 mins is plenty
 </script>
 </body>
 </html>

@@ -317,7 +317,7 @@ footer {
 
   <header>
     <h1>[ENV] CYBERDECK MONITOR</h1>
-    <div class="sub">ESP32 x2 // DHT22 // BME680 // BH1750 // OPEN-METEO // NEWTON ABBOT // v4.1</div>
+    <div class="sub">ESP32 x2 // DHT22 // BME680 // BH1750 // OPEN-METEO // NEWTON ABBOT // v4.2</div>
   </header>
 
 
@@ -546,6 +546,19 @@ footer {
     <canvas id="d2-chart-press"></canvas>
   </div>
 
+  <!-- Device 2 AIR QUALITY chart (NEW - between pressure and lux) -->
+  <div class="panel d2">
+    <div class="ptitle amber">// AIR QUALITY LOG (kΩ) — HIGHER = CLEANER AIR</div>
+    <div class="range-row">
+      <button class="pill d2" onclick="setRange(2,6,this)">6H</button>
+      <button class="pill d2" onclick="setRange(2,24,this)">24H</button>
+      <button class="pill d2 active" onclick="setRange(2,168,this)">7D</button>
+      <button class="pill d2" onclick="setRange(2,720,this)">30D</button>
+      <button class="pill d2" onclick="setRange(2,0,this)">ALL</button>
+    </div>
+    <canvas id="d2-chart-gas"></canvas>
+  </div>
+
   <!-- Device 2 lux chart -->
   <div class="panel d2">
     <div class="ptitle amber">// LIGHT LEVEL LOG (lux)</div>
@@ -684,6 +697,15 @@ const chartD2Press = new Chart(document.getElementById('d2-chart-press').getCont
     { label:'PRESSURE hPa', data:[], borderColor:'#ffaa00', backgroundColor:'rgba(255,170,0,.05)', tension:.3, pointRadius:0, borderWidth:1.5, yAxisID:'y1' }
   ]},
   options: chartOptsSingle('#ffaa00','hPa','rgba(255,170,0,.06)')
+});
+
+// NEW: Air Quality chart for Device 2
+const chartD2Gas = new Chart(document.getElementById('d2-chart-gas').getContext('2d'), {
+  type:'line',
+  data:{ labels:[], datasets:[
+    { label:'AIR QUALITY kΩ', data:[], borderColor:'#bf7fff', backgroundColor:'rgba(191,127,255,.05)', tension:.3, pointRadius:0, borderWidth:1.5, yAxisID:'y1' }
+  ]},
+  options: chartOptsSingle('#bf7fff','kΩ','rgba(191,127,255,.06)')
 });
 
 const chartD2Lux = new Chart(document.getElementById('d2-chart-lux').getContext('2d'), {
@@ -872,7 +894,7 @@ function renderDevice2() {
   document.getElementById('d2-lux-lbl').textContent=luxLabel(latest.lux);
   document.getElementById('d2-lux-fill').style.width=luxPct(latest.lux)+'%';
 
-  const temps=rows.map(r=>r.temp), hums=rows.map(r=>r.hum), press=rows.map(r=>r.press);
+  const temps=rows.map(r=>r.temp), hums=rows.map(r=>r.hum), press=rows.map(r=>r.press), gases=rows.map(r=>r.gas);
   const maxT=Math.max(...temps), minT=Math.min(...temps);
   setHTML('d2-high', maxT.toFixed(1)+'<span class="su">°C</span>');
   setHTML('d2-low',  minT.toFixed(1)+'<span class="su">°C</span>');
@@ -891,6 +913,9 @@ function renderDevice2() {
   chartD2Press.data.labels=cd.map(r=>fmtLabel(r.ts));
   chartD2Press.data.datasets[0].data=cd.map(r=>r.press);
   chartD2Press.update();
+  chartD2Gas.data.labels=cd.map(r=>fmtLabel(r.ts));
+  chartD2Gas.data.datasets[0].data=cd.map(r=>r.gas);
+  chartD2Gas.update();
   chartD2Lux.data.labels=cd.map(r=>fmtLabel(r.ts));
   chartD2Lux.data.datasets[0].data=cd.map(r=>r.lux);
   chartD2Lux.update();

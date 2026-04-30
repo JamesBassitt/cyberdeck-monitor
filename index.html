@@ -159,11 +159,11 @@ header .sub { font-size: .6em; letter-spacing: 3px; opacity: .38; margin-top: 4p
 .aq-poor      { background: rgba(255,100,0,.15);  color: #ff6600; }
 .aq-verypoor  { background: rgba(255,68,68,.15);  color: #ff4444; }
 
-/* ── Lux bar ── */
-.lux-wrap { margin: 6px 0 2px; }
-.lux-track { width: 100%; height: 6px; background: rgba(255,170,0,.08); border-radius: 4px; overflow: hidden; }
-.lux-fill  { height: 100%; border-radius: 4px; background: linear-gradient(to right,#001133,#003366,#ffaa00,#ffffff); transition: width .8s ease; }
-.lux-labels{ display: flex; justify-content: space-between; font-size: .5em; opacity: .28; margin-top: 3px; }
+/* ── Lux bar (commented out - keeping CSS for compatibility) ── */
+/* .lux-wrap { margin: 6px 0 2px; } */
+/* .lux-track { width: 100%; height: 6px; background: rgba(255,170,0,.08); border-radius: 4px; overflow: hidden; } */
+/* .lux-fill  { height: 100%; border-radius: 4px; background: linear-gradient(to right,#001133,#003366,#ffaa00,#ffffff); transition: width .8s ease; } */
+/* .lux-labels{ display: flex; justify-content: space-between; font-size: .5em; opacity: .28; margin-top: 3px; } */
 
 /* ── Status bar ── */
 .status-bar {
@@ -317,7 +317,7 @@ footer {
 
   <header>
     <h1>[ENV] CYBERDECK MONITOR</h1>
-    <div class="sub">ESP32 x2 // DHT22 // BME680 // BH1750 // OPEN-METEO // NEWTON ABBOT // v4.2</div>
+    <div class="sub">ESP32 x2 // DHT22 // BME680 // OPEN-METEO // NEWTON ABBOT // v4.2</div>
   </header>
 
 
@@ -451,15 +451,15 @@ footer {
 
 
   <!-- ═══════════════════════════════════════════════
-       SECTION 2 — DEVICE 2 — AMBER THEME
+       SECTION 2 — DEVICE 2 — AMBER THEME (LUX REMOVED)
   ═══════════════════════════════════════════════ -->
   <div class="section-divider amber-div">
-    <span class="amber">// DEVICE 2 — ESP32 #2 / BME680 + BH1750</span>
+    <span class="amber">// DEVICE 2 — ESP32 #2 / BME680 (LUX SENSOR DISABLED)</span>
   </div>
 
-  <!-- Device 2 live readings -->
+  <!-- Device 2 live readings (Lux card REMOVED) -->
   <div class="panel d2">
-    <div class="ptitle amber">// LIVE READINGS — ESP32 #2 / BME680 + BH1750</div>
+    <div class="ptitle amber">// LIVE READINGS — ESP32 #2 / BME680</div>
     <div class="stats-grid">
       <div class="stat d2">
         <div class="sv amber" id="d2-temp">--<span class="su">°C</span></div>
@@ -481,15 +481,7 @@ footer {
         <div class="sl">AIR QUALITY</div>
         <div id="d2-aq-badge"><span class="aq-badge aq-fair">READING...</span></div>
       </div>
-      <div class="stat d2">
-        <div class="sv green" id="d2-lux">--<span class="su">lx</span></div>
-        <div class="sl">LIGHT LEVEL</div>
-        <div class="sd neu" id="d2-lux-lbl">--</div>
-        <div class="lux-wrap">
-          <div class="lux-track"><div class="lux-fill" id="d2-lux-fill" style="width:0%"></div></div>
-          <div class="lux-labels"><span>DARK</span><span>OFFICE</span><span>OUTDOOR</span></div>
-        </div>
-      </div>
+      <!-- LUX CARD REMOVED -->
       <div class="stat d2">
         <div class="sv amber" id="d2-high">--<span class="su">°C</span></div>
         <div class="sl">7D HIGH</div>
@@ -546,7 +538,7 @@ footer {
     <canvas id="d2-chart-press"></canvas>
   </div>
 
-  <!-- Device 2 AIR QUALITY chart (NEW - between pressure and lux) -->
+  <!-- Device 2 AIR QUALITY chart -->
   <div class="panel d2">
     <div class="ptitle amber">// AIR QUALITY LOG (kΩ) — HIGHER = CLEANER AIR</div>
     <div class="range-row">
@@ -559,13 +551,9 @@ footer {
     <canvas id="d2-chart-gas"></canvas>
   </div>
 
-  <!-- Device 2 lux chart -->
-  <div class="panel d2">
-    <div class="ptitle amber">// LIGHT LEVEL LOG (lux)</div>
-    <canvas id="d2-chart-lux"></canvas>
-  </div>
+  <!-- DEVICE 2 LUX CHART SECTION REMOVED -->
 
-  <!-- Device 2 daily averages -->
+  <!-- Device 2 daily averages (Lux bars removed) -->
   <div class="panel d2">
     <div class="ptitle amber">// DAILY AVERAGES — DEVICE 2</div>
     <div class="bars-grid">
@@ -657,20 +645,9 @@ function aqInfo(kOhm) {
   return                  { label:'VERY POOR', cls:'aq-verypoor'  };
 }
 
-// ── Lux helpers ───────────────────────────────────────────
-function luxLabel(lux) {
-  if (lux < 1)     return 'VERY DARK';
-  if (lux < 50)    return 'DIM';
-  if (lux < 200)   return 'INDOOR LOW';
-  if (lux < 500)   return 'INDOOR BRIGHT';
-  if (lux < 2000)  return 'OVERCAST DAY';
-  if (lux < 10000) return 'BRIGHT DAY';
-  return 'DIRECT SUNLIGHT';
-}
-function luxPct(lux) {
-  if (!lux || isNaN(lux) || lux <= 0) return 0;
-  return Math.min(Math.log10(lux) / Math.log10(10000) * 100, 100).toFixed(1);
-}
+// ── Lux helpers (commented out - no longer used) ──
+// function luxLabel(lux) { ... }
+// function luxPct(lux) { ... }
 
 // ── Charts ────────────────────────────────────────────────
 const chartD1 = new Chart(document.getElementById('d1-chart').getContext('2d'), {
@@ -699,7 +676,7 @@ const chartD2Press = new Chart(document.getElementById('d2-chart-press').getCont
   options: chartOptsSingle('#ffaa00','hPa','rgba(255,170,0,.06)')
 });
 
-// NEW: Air Quality chart for Device 2
+// Air Quality chart for Device 2
 const chartD2Gas = new Chart(document.getElementById('d2-chart-gas').getContext('2d'), {
   type:'line',
   data:{ labels:[], datasets:[
@@ -708,13 +685,7 @@ const chartD2Gas = new Chart(document.getElementById('d2-chart-gas').getContext(
   options: chartOptsSingle('#bf7fff','kΩ','rgba(191,127,255,.06)')
 });
 
-const chartD2Lux = new Chart(document.getElementById('d2-chart-lux').getContext('2d'), {
-  type:'line',
-  data:{ labels:[], datasets:[
-    { label:'LIGHT lux', data:[], borderColor:'#00ff9c', backgroundColor:'rgba(0,255,150,.05)', tension:.3, pointRadius:0, borderWidth:1.5, yAxisID:'y1' }
-  ]},
-  options: chartOptsSingle('#00ff9c','lux','rgba(0,255,150,.06)')
-});
+// LUX CHART REMOVED (chartD2Lux no longer exists)
 
 // Dual Y-axis chart options
 function chartOpts(c1,c2,l1,l2,grid) {
@@ -767,7 +738,7 @@ async function fetchDevice1() {
   }
 }
 
-// ── Fetch Device 2 ────────────────────────────────────────
+// ── Fetch Device 2 (Lux removed from parser) ─────────────────
 async function fetchDevice2() {
   try {
     const text = await (await fetch(CSV_D2 + '&cb=' + Date.now())).text();
@@ -779,8 +750,8 @@ async function fetchDevice2() {
         temp:  parseFloat(r[k[1]]),
         hum:   parseFloat(r[k[2]]),
         press: parseFloat(r[k[3]]),
-        gas:   parseFloat(r[k[4]]),
-        lux:   parseFloat(r[k[5]])
+        gas:   parseFloat(r[k[4]])
+        // LUX COLUMN REMOVED (was r[k[5]])
       };
     }).filter(r => !isNaN(r.ts.getTime()) && !isNaN(r.temp)).sort((a,b)=>a.ts-b.ts);
     setDot('d2-dot-s','d2-lbl-s',   true, 'SHEETS OK — '+rows2.length+' ROWS', 'SHEETS ERROR');
@@ -871,7 +842,7 @@ function renderDevice1() {
   renderBars2('d1-temp-bars','d1-hum-bars',rows,'green','blue');
 }
 
-// ── Render Device 2 ───────────────────────────────────────
+// ── Render Device 2 (Lux removed from display) ─────────────────
 function renderDevice2() {
   const rows = filterByRange(rows2, range2);
   if (!rows.length) return;
@@ -881,7 +852,7 @@ function renderDevice2() {
   setHTML('d2-hum',   latest.hum.toFixed(1)   +'<span class="su">%</span>');
   setHTML('d2-press', latest.press.toFixed(0) +'<span class="su">hPa</span>');
   setHTML('d2-gas',   latest.gas.toFixed(1)   +'<span class="su">kΩ</span>');
-  setHTML('d2-lux',   Math.round(latest.lux)  +'<span class="su">lx</span>');
+  // LUX DISPLAY REMOVED
 
   if(prev){
     setDelta('d2-temp-d', (latest.temp -prev.temp ).toFixed(1),'°C');
@@ -891,8 +862,7 @@ function renderDevice2() {
 
   const aq=aqInfo(latest.gas);
   document.getElementById('d2-aq-badge').innerHTML='<span class="aq-badge '+aq.cls+'">'+aq.label+'</span>';
-  document.getElementById('d2-lux-lbl').textContent=luxLabel(latest.lux);
-  document.getElementById('d2-lux-fill').style.width=luxPct(latest.lux)+'%';
+  // LUX LABEL AND FILL REMOVED
 
   const temps=rows.map(r=>r.temp), hums=rows.map(r=>r.hum), press=rows.map(r=>r.press), gases=rows.map(r=>r.gas);
   const maxT=Math.max(...temps), minT=Math.min(...temps);
@@ -916,9 +886,8 @@ function renderDevice2() {
   chartD2Gas.data.labels=cd.map(r=>fmtLabel(r.ts));
   chartD2Gas.data.datasets[0].data=cd.map(r=>r.gas);
   chartD2Gas.update();
-  chartD2Lux.data.labels=cd.map(r=>fmtLabel(r.ts));
-  chartD2Lux.data.datasets[0].data=cd.map(r=>r.lux);
-  chartD2Lux.update();
+  // LUX CHART UPDATE REMOVED
+  
   renderBars4('d2-temp-bars','d2-hum-bars','d2-press-bars','d2-gas-bars',rows);
 }
 
@@ -975,15 +944,15 @@ function barRow(k,val,maxVal,color,decimals) {
   </div>`;
 }
 
-// ── CSV download ──────────────────────────────────────────
+// ── CSV download (Lux removed from Device 2 export) ───────
 function downloadCSV(dev) {
   const rows=filterByRange(dev===1?rows1:rows2,dev===1?range1:range2);
   const header=dev===1
     ?'Timestamp,Temperature (C),Humidity (%)\n'
-    :'Timestamp,Temperature (C),Humidity (%),Pressure (hPa),Gas (kOhm),Light (lux)\n';
+    :'Timestamp,Temperature (C),Humidity (%),Pressure (hPa),Gas (kOhm)\n';  // LUX REMOVED
   const body=rows.map(r=>dev===1
     ?`${r.ts.toISOString()},${r.temp.toFixed(1)},${r.hum.toFixed(1)}`
-    :`${r.ts.toISOString()},${r.temp.toFixed(1)},${r.hum.toFixed(1)},${r.press.toFixed(1)},${r.gas.toFixed(1)},${Math.round(r.lux)}`
+    :`${r.ts.toISOString()},${r.temp.toFixed(1)},${r.hum.toFixed(1)},${r.press.toFixed(1)},${r.gas.toFixed(1)}`  // LUX REMOVED
   ).join('\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([header+body],{type:'text/csv'}));
@@ -994,7 +963,6 @@ function downloadCSV(dev) {
 // ── Range pills ───────────────────────────────────────────
 function setRange(dev,h,btn) {
   if(dev===1)range1=h; else range2=h;
-  // only deactivate pills within the same range-row as the clicked button
   btn.closest('.range-row').querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
   if(dev===1)renderDevice1(); else renderDevice2();
